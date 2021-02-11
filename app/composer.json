@@ -1,0 +1,22 @@
+{
+  "name": "typo3/t3docs-exception-pages",
+  "description": "This project handles the creation of a new TYPO3 Exception page.",
+  "minimum-stability": "stable",
+  "license": "CC-BY-NC-SA-4.0",
+  "authors": [
+    {
+      "name": "TYPO3 Documentation Team",
+      "homepage": "https://typo3.org/community/teams/documentation"
+    }
+  ],
+  "require": {
+    "typo3/exception-pages": "@dev",
+    "php": "~7.2.24"
+  },
+  "repositories": {
+    "local": {
+      "type": "path",
+      "url": "./packages/*"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "typo3/exception-pages",
+  "description": "This library handles the creation of TYPO3 Exception pages at docs.typo3.org.",
+  "type": "library",
+  "license": "CC-BY-NC-SA-4.0",
+  "authors": [
+    {
+      "name": "TYPO3 Documentation Team",
+      "homepage": "https://typo3.org/community/teams/documentation"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Typo3\\ExceptionPages\\": "src/"
+    }
+  },
+  "require": {
+    "symfony/http-client": "^5.2"
+  }
+}
