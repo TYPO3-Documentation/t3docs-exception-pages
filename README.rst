@@ -27,9 +27,9 @@ Installation
       docker-compose build --force-rm
       docker-compose -f admin.yml run --rm composer-install
 
-3. Copy `app/config.inc.php <app/config.inc.php>`_ to app/config.php and insert
+3. Copy ``app/config.inc.php`` to ``app/config.php`` and insert
    the GitHub username and token of the user who has write access to the
-   `TYPO3 exception pages repository <https://github.com/TYPO3-Documentation/TYPO3CMS-Exceptions>`_
+   `TYPO3 Exception Pages repository <https://github.com/TYPO3-Documentation/TYPO3CMS-Exceptions>`_
    via GitHub API. See the
    `GitHub Docs <https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token>`_
    for further details on how to create an access token.
