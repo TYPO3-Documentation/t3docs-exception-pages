@@ -499,11 +499,14 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/exception-pages",
-                "reference": "01acfcdcfd836ae4de62a05ff3c523490ee25961"
+                "reference": "e014adceb42dc73efa56e796ef7f38cc4d68bf87"
             },
             "require": {
                 "symfony/http-client": "^5.2"
             },
+            "bin": [
+                "bin/merge-exception-code-files"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {

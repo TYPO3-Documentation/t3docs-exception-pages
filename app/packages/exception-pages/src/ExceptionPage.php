@@ -19,6 +19,8 @@ class ExceptionPage
     protected $gitHubExceptionPath;
     protected $gitHubBranch;
 
+    protected $exceptionPages;
+
     public function __construct(string $exception)
     {
         $this->exception = $exception;
@@ -27,6 +29,8 @@ class ExceptionPage
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
         $this->gitHubExceptionPath = 'Documentation/Exceptions/%s.rst';
         $this->gitHubBranch = 'master';
+
+        $this->exceptionPages = new ExceptionPages();
     }
 
     public function run(): void
@@ -49,29 +53,9 @@ class ExceptionPage
 
     protected function checkExceptionNumber(): void
     {
-        $exceptions = $this->getAvailableExceptions();
-        $exceptionsIndex = array_flip($exceptions);
-        if (!isset($exceptionsIndex[$this->exception])) {
+        if (!$this->exceptionPages->isValidExceptionCode($this->exception)) {
             throw new \Exception('This is not a valid exception number', 4001);
         };
-    }
-
-    protected function getAvailableExceptions(): array
-    {
-        //TODO: Fetch official list of TYPO3 exceptions numbers.
-        $dummyListOfExceptions = [
-            '1234567890',
-            '1234567891',
-            '1234567892',
-            '1234567893',
-            '1234567894',
-            '1234567895',
-            '1234567896',
-            '1234567897',
-            '1234567898',
-            '1234567899',
-        ];
-        return $dummyListOfExceptions;
     }
 
     protected function createPage(): void

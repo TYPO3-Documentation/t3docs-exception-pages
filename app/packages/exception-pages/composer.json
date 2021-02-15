@@ -16,5 +16,6 @@
   },
   "require": {
     "symfony/http-client": "^5.2"
-  }
+  },
+  "bin": ["bin/merge-exception-code-files"]
 }

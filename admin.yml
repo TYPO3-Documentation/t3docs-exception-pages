@@ -26,3 +26,16 @@ services:
         [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
         cd app && composer update;
       '
+
+  merge-exception-code-files:
+    image: t3docs/exception-pages-php
+    user: "${UID}:${GID}"
+    volumes:
+      - ./app:/var/www/app
+    environment:
+      - SCRIPT_VERBOSE=0
+    command: >
+      /bin/sh -c '
+        [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
+        cd app && ./vendor/bin/merge-exception-code-files;
+      '

@@ -34,6 +34,34 @@ Installation
    `GitHub Docs <https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token>`_
    for further details on how to create an access token.
 
+Maintenance
+-----------
+
+1. Get the list of available exception codes of a TYPO3 release by running
+
+   .. code-block:: bash
+
+      Build/Scripts/runTests.sh -s listExceptionCodes > exceptions_{typo3version}.json
+
+   in the TYPO3 CMS repository and copy the resulting exceptions.json to the
+   folder ``app/packages/exception-pages/res/exceptions``.
+
+2. Run the merge script by
+
+   .. code-block:: bash
+
+      # Linux
+      make merge
+
+      # MacOS and Windows
+      docker-compose -f admin.yml run --rm merge-exception-code-files
+
+   which traverses all JSON files and produces the PHP file
+   ``app/packages/exception-pages/res/exceptions/exceptions.php`` which serves as the final list of exception
+   codes available for page creation.
+
+Repeat these steps always when a new TYPO3 version has been released.
+
 Manual testing
 --------------
 
@@ -47,10 +75,9 @@ Manual testing
       # MacOS and Windows
       docker-compose up
 
-2. Chose an arbitrary exception number from the array of PHP function
-   ``\Typo3\ExceptionPages\ExceptionPage::getAvailableExceptions``
-   which should serve here as an official TYPO3 exception number. Make sure,
-   that the corresponding TYPO3 Exception Page does not exist yet at
+2. Chose an arbitrary exception number from the array of exception codes file
+   ``app/packages/exception-pages/res/exceptions/exceptions.php``.
+   Make sure, that the corresponding TYPO3 Exception Page does not exist yet at
 
    .. code-block::
 
