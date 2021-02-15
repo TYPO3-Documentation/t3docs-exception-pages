@@ -7,7 +7,7 @@ on docs.typo3.org, the user should also be able to create a new exception page â
 without being distracted from the usual workflow.
 
 Therefore, the web server simulates a dummy exception page with the familiar
-"Edit me on GitHub" button when it cannot find the requested exception page.
+"Edit on GitHub" button when it cannot find the requested exception page.
 When the user clicks the button to add their experience with this exception,
 the web server creates the new exception page on-the-fly before redirecting
 the user to the usual GitHub edit form.
@@ -93,7 +93,7 @@ Manual testing
 
    .. image:: docs/typo3_exception_page_simulation.png
 
-4. Click the "Edit me on GitHub" button and confirm that you get redirected to
+4. Click the "Edit on GitHub" button and confirm that you get redirected to
    the usual GitHub edit form for file
 
    .. code-block::
@@ -107,7 +107,7 @@ Manual testing
 
       [TASK] Create page for exception {exceptionnumber}
 
-6. Confirm that repeating clicks on the "Edit me on GitHub" button do not end in
+6. Confirm that repeating clicks on the "Edit on GitHub" button do not end in
    errors.
 7. Bring down the webserver by
 
