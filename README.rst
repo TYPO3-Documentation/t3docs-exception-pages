@@ -66,7 +66,7 @@ Maintenance
    ``app/packages/exception-pages/res/exceptions/exceptions.php`` which serves
    as the list of exception codes available for page creation.
 
-- or, instead of (1) and (2) -
+– or, instead of (1) and (2) –
 
 3. Fetch and merge all exception codes of the currently actively supported
    TYPO3 LTS (>= 9 LTS) by
