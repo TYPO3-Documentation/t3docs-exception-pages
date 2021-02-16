@@ -37,16 +37,22 @@ Installation
 Maintenance
 -----------
 
-1. Get the list of available exception codes of a TYPO3 release by running
+1. Get the list of available exception codes for each TYPO3 release by running
 
    .. code-block:: bash
 
-      Build/Scripts/runTests.sh -s listExceptionCodes > exceptions_{typo3version}.json
+      # Linux
+      make fetch
 
-   in the TYPO3 CMS repository and copy the resulting exceptions.json to the
-   folder ``app/packages/exception-pages/res/exceptions``.
+      # MacOS and Windows
+      docker-compose -f admin.yml run --rm fetch-exception-code-files
 
-2. Run the merge script by
+   It pulls the current TYPO3 Git repository, checks out each TYPO3 release and
+   creates an according exception code file in folder
+   ``app/packages/exception-pages/res/exceptions`` - if it does not exist
+   already.
+
+2. Merge all exception code files into one final aggregation file by
 
    .. code-block:: bash
 
@@ -56,9 +62,28 @@ Maintenance
       # MacOS and Windows
       docker-compose -f admin.yml run --rm merge-exception-code-files
 
-   which traverses all JSON files and produces the PHP file
-   ``app/packages/exception-pages/res/exceptions/exceptions.php`` which serves as the final list of exception
-   codes available for page creation.
+   It traverses all JSON files and produces the final PHP file
+   ``app/packages/exception-pages/res/exceptions/exceptions.php`` which serves
+   as the list of exception codes available for page creation.
+
+- or, instead of (1) and (2) -
+
+3. Fetch and merge all exception codes of the currently actively supported
+   TYPO3 LTS (>= 9 LTS) by
+
+   .. code-block:: bash
+
+      # Linux
+      make update
+
+      # MacOS and Windows
+      docker-compose -f admin.yml run --rm update-exception-code-files
+
+   It makes use of the aggregation file of exception codes for the unsupported
+   TYPO3 releases (< 9 LTS)
+   ``app/packages/exception-pages/res/exceptions/aggregation-3.6-8.7.json``,
+   fetches all exception code files of the actively supported TYPO3 LTS -
+   which do not exist yet - and merges the final aggregation file again.
 
 Repeat these steps always when a new TYPO3 version has been released.
 
@@ -75,7 +100,7 @@ Manual testing
       # MacOS and Windows
       docker-compose up
 
-2. Chose an arbitrary exception number from the array of exception codes file
+2. Chose an arbitrary exception number from the array of exception code file
    ``app/packages/exception-pages/res/exceptions/exceptions.php``.
    Make sure, that the corresponding TYPO3 Exception Page does not exist yet at
 

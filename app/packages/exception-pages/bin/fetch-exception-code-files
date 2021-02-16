@@ -4,6 +4,6 @@
 require dirname(dirname(dirname(dirname(__FILE__)))) . '/vendor/autoload.php';
 
 $typo3ReleasePattern = !empty($argv[1]) ? $argv[1] : '';
-$fileName = !empty($argv[2]) ? $argv[2] : '';
+$force = !empty($argv[2]) ? (bool)$argv[2] : false;
 $exceptionCodes = new \Typo3\ExceptionPages\ExceptionCodes();
-$exceptionCodes->mergeFiles($typo3ReleasePattern, $fileName);
+$exceptionCodes->fetchFiles($typo3ReleasePattern, $force);

@@ -9,7 +9,7 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class ExceptionPage
 {
-    protected $exception;
+    protected $exceptionCode;
     protected $action;
 
     protected $gitHubUser;
@@ -19,24 +19,24 @@ class ExceptionPage
     protected $gitHubExceptionPath;
     protected $gitHubBranch;
 
-    protected $exceptionPages;
+    protected $exceptionCodes;
 
-    public function __construct(string $exception)
+    public function __construct(string $exceptionCode)
     {
-        $this->exception = $exception;
+        $this->exceptionCode = $exceptionCode;
 
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
         $this->gitHubExceptionPath = 'Documentation/Exceptions/%s.rst';
         $this->gitHubBranch = 'master';
 
-        $this->exceptionPages = new ExceptionPages();
+        $this->exceptionCodes = new ExceptionCodes();
     }
 
     public function run(): void
     {
         try {
-            $this->checkExceptionNumber();
+            $this->checkExceptionCode();
             if ($this->action === 'edit') {
                 $this->createPage();
                 $this->redirectToEditPage();
@@ -51,9 +51,9 @@ class ExceptionPage
         }
     }
 
-    protected function checkExceptionNumber(): void
+    protected function checkExceptionCode(): void
     {
-        if (!$this->exceptionPages->isValidExceptionCode($this->exception)) {
+        if (!$this->exceptionCodes->isValid($this->exceptionCode)) {
             throw new \Exception('This is not a valid exception number', 4001);
         };
     }
@@ -61,7 +61,7 @@ class ExceptionPage
     protected function createPage(): void
     {
         $rst = file_get_contents(dirname(__DIR__) . '/res/default.rst');
-        $rst = str_replace(['[[[Exception]]]'], [$this->exception], $rst);
+        $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
 
         try {
             $client = HttpClient::create();
@@ -70,14 +70,14 @@ class ExceptionPage
                     'https://api.github.com/repos/%s/%s/contents/%s',
                     $this->gitHubOwner,
                     $this->gitHubRepository,
-                    sprintf($this->gitHubExceptionPath, $this->exception)
+                    sprintf($this->gitHubExceptionPath, $this->exceptionCode)
                 ),
                 ['headers' => [
                     'accept' => 'application/vnd.github.v3+json',
                 ], 'auth_basic' => [
                     $this->gitHubUser, $this->gitHubToken
                 ], 'json' => [
-                    'message' => sprintf('[TASK] Create page for exception %s', $this->exception),
+                    'message' => sprintf('[TASK] Create page for exception %s', $this->exceptionCode),
                     'content' => base64_encode($rst),
                     'branch' => $this->gitHubBranch
                 ]]
@@ -99,7 +99,7 @@ class ExceptionPage
             $this->gitHubOwner,
             $this->gitHubRepository,
             $this->gitHubBranch,
-            sprintf($this->gitHubExceptionPath, $this->exception)
+            sprintf($this->gitHubExceptionPath, $this->exceptionCode)
         )));
         exit;
     }
@@ -109,7 +109,7 @@ class ExceptionPage
         header('Content-Type: text/plain');
         header('Cache-Control: no-cache, no-store, must-revalidate');
         $rst = file_get_contents(dirname(__DIR__) . '/res/default.rst');
-        $rst = str_replace(['[[[Exception]]]'], [$this->exception], $rst);
+        $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
         echo $rst;
         exit;
     }
@@ -120,7 +120,7 @@ class ExceptionPage
         header('Cache-Control: no-cache, no-store, must-revalidate');
         $page = file_get_contents(dirname(__DIR__) . '/res/page.html');
         $body = file_get_contents(dirname(__DIR__) . '/res/default.html');
-        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exception], $page);
+        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exceptionCode], $page);
         echo $page;
         exit;
     }
@@ -136,7 +136,7 @@ class ExceptionPage
         header('Cache-Control: no-cache, no-store, must-revalidate');
         $page = file_get_contents(dirname(__DIR__) . '/res/page.html');
         $body = file_get_contents(dirname(__DIR__) . '/res/error.html');
-        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exception], $page);
+        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exceptionCode], $page);
         echo $page;
         exit;
     }

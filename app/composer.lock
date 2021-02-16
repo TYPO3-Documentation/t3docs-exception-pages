@@ -263,7 +263,7 @@
         },
         {
             "name": "symfony/polyfill-php73",
-            "version": "v1.22.0",
+            "version": "v1.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php73.git",
@@ -339,7 +339,7 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.22.0",
+            "version": "v1.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
@@ -499,12 +499,13 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/exception-pages",
-                "reference": "e014adceb42dc73efa56e796ef7f38cc4d68bf87"
+                "reference": "c04ca04154528d45393787245355962796e84a1b"
             },
             "require": {
                 "symfony/http-client": "^5.2"
             },
             "bin": [
+                "bin/fetch-exception-code-files",
                 "bin/merge-exception-code-files"
             ],
             "type": "library",

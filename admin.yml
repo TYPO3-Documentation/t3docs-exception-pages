@@ -27,7 +27,37 @@ services:
         cd app && composer update;
       '
 
+  fetch-exception-code-files:
+    image: t3docs/exception-pages-php
+    user: "${UID}:${GID}"
+    volumes:
+      - ./app:/var/www/app
+    environment:
+      - SCRIPT_VERBOSE=0
+      - TYPO3_RELEASE_PATTERN
+      - FORCE
+    command: >
+      /bin/sh -c '
+        [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
+        cd app && ./vendor/bin/fetch-exception-code-files "$${TYPO3_RELEASE_PATTERN}" "$${FORCE}";
+      '
+
   merge-exception-code-files:
+    image: t3docs/exception-pages-php
+    user: "${UID}:${GID}"
+    volumes:
+      - ./app:/var/www/app
+    environment:
+      - SCRIPT_VERBOSE=0
+      - TYPO3_RELEASE_PATTERN
+      - FILE_NAME
+    command: >
+      /bin/sh -c '
+        [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
+        cd app && ./vendor/bin/merge-exception-code-files "$${TYPO3_RELEASE_PATTERN}" "$${FILE_NAME}";
+      '
+
+  update-exception-code-files:
     image: t3docs/exception-pages-php
     user: "${UID}:${GID}"
     volumes:
@@ -37,5 +67,7 @@ services:
     command: >
       /bin/sh -c '
         [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
-        cd app && ./vendor/bin/merge-exception-code-files;
+        cd app;
+        ./vendor/bin/fetch-exception-code-files "/^(?!6\.|7\.|8\.|TYPO3_3-|TYPO3_4-|TYPO3_6-|TYPO3_7-|TYPO3_8-|v7\.|v8\.|Root_AuthServices|Start|beforellxml)/";
+        ./vendor/bin/merge-exception-code-files;
       '
