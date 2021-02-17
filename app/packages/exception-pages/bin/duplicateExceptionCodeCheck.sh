@@ -78,7 +78,7 @@ shift $((OPTIND-1))
 # --- print list of found exceptions to stdout ---
 # ------------------------------------------------
 print_exceptions() {
-    IFS=$'\n' sorted=($(sort <<<"${exceptionCodes[*]}")); unset IFS
+    IFS=$'\n' sorted=($(sort -u <<<"${exceptionCodes[*]}")); unset IFS
 
     local numExceptions=${#sorted[@]}
 
@@ -143,7 +143,14 @@ scan_exceptions() {
 
             # check for match in previous file name
             if [[ ${foundNewFile} -eq 1 ]] && [[ ${foundExceptionInFile} -eq 0 ]]; then
-                continue
+                if [ "$print" -ne "1" ]; then
+                    # checking exception codes: exit
+                    # listing exception codes: ignore
+                    echo "File: $oldFilename"
+                    echo "The created exception contains no 10 digit exception code as second argument, in or below this line:"
+                    echo "$firstLineOfMatch"
+                    exit 1
+                fi
             fi
 
             # reset found flag if we're handling new file
@@ -158,7 +165,13 @@ scan_exceptions() {
                 exceptionCode=${BASH_REMATCH[1]}
                 # check if that code was registered already
                 if [[ " ${exceptionCodes[@]} " =~ " ${exceptionCode} " ]]; then
-                    continue
+                    if [ "$print" -ne "1" ]; then
+                        # checking exception codes: exit
+                        # listing exception codes: ignore
+                        echo "Duplicate exception code ${exceptionCode} in file:"
+                        echo ${currentFilename}
+                        exit 1
+                    fi
                 fi
                 exceptionCodes+=(${exceptionCode})
             fi
