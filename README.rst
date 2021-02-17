@@ -68,8 +68,7 @@ Maintenance
 
 – or, instead of (1) and (2) –
 
-3. Fetch and merge all exception codes of the currently actively supported
-   TYPO3 LTS (>= 9 LTS) by
+3. Combine both commands of fetching and merging new exception codes by
 
    .. code-block:: bash
 
@@ -78,12 +77,6 @@ Maintenance
 
       # MacOS and Windows
       docker-compose -f admin.yml run --rm update-exception-code-files
-
-   It makes use of the aggregation file of exception codes for the unsupported
-   TYPO3 releases (< 9 LTS)
-   ``app/packages/exception-pages/res/exceptions/aggregation-3.6-8.7.json``,
-   fetches all exception code files of the actively supported TYPO3 LTS -
-   which do not exist yet - and merges the final aggregation file again.
 
 Repeat these steps always when a new TYPO3 version has been released.
 

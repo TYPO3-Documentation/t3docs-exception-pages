@@ -13,15 +13,15 @@ build: env
 	@docker-compose build --force-rm
 	@docker-compose -f admin.yml run --rm composer-install
 
-fetch:
+fetch: env
 	@echo "Fetch TYPO3 Exception Code files [branch: $(BRANCH)]"
 	@docker-compose -f admin.yml run --rm fetch-exception-code-files
 
-merge:
+merge: env
 	@echo "Merge TYPO3 Exception Code files [branch: $(BRANCH)]"
 	@docker-compose -f admin.yml run --rm merge-exception-code-files
 
-update:
+update: env
 	@echo "Update TYPO3 Exception Code files [branch: $(BRANCH)]"
 	@docker-compose -f admin.yml run --rm update-exception-code-files
 

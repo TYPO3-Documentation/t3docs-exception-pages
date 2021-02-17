@@ -68,6 +68,6 @@ services:
       /bin/sh -c '
         [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
         cd app;
-        ./vendor/bin/fetch-exception-code-files "/^(?!6\.|7\.|8\.|TYPO3_3-|TYPO3_4-|TYPO3_6-|TYPO3_7-|TYPO3_8-|v7\.|v8\.|Root_AuthServices|Start|beforellxml)/";
+        ./vendor/bin/fetch-exception-code-files;
         ./vendor/bin/merge-exception-code-files;
       '
