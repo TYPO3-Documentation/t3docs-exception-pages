@@ -2,8 +2,8 @@
 
 require 'vendor/autoload.php';
 
-$exception = ctype_digit($_GET['exception']) ? $_GET['exception'] : '';
-$action = ctype_alpha($_GET['action']) ? $_GET['action'] : '';
+$exception = isset($_GET['exception']) && ctype_digit($_GET['exception']) ? $_GET['exception'] : '';
+$action = isset($_GET['action']) && ctype_alpha($_GET['action']) ? $_GET['action'] : '';
 
 $config = include 'config.php';
 
