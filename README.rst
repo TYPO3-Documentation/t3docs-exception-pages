@@ -34,6 +34,8 @@ Installation
    `GitHub Docs <https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token>`_
    for further details on how to create an access token.
 
+.. _Maintenance:
+
 Maintenance
 -----------
 
@@ -144,6 +146,10 @@ The essence for the production environment is
 
 *  the PHP application in folder `app <app>`_
 *  the Nginx configuration in file `default.conf <nginx/files/etc/nginx/conf.d/default.conf>`_
+
+Each push to the remote branch ``master`` triggers a deployment to the production
+server. Thus make sure that you fetched, merged and committed the latest
+exception codes as written in Maintenance_.
 
 Uninstallation
 --------------
