@@ -54,7 +54,7 @@ class ExceptionPage
     protected function checkExceptionCode(): void
     {
         if (!$this->exceptionCodes->isValid($this->exceptionCode)) {
-            throw new \Exception('This is not a valid exception number', 4001);
+            throw new \Exception(sprintf('This is not a valid exception number: %s.', $this->exceptionCode), 4001);
         };
     }
 
