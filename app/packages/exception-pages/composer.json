@@ -15,7 +15,9 @@
     }
   },
   "require": {
-    "symfony/http-client": "^5.2"
+    "symfony/dom-crawler": "^5.2",
+    "symfony/http-client": "^5.2",
+    "masterminds/html5": "^2.7"
   },
   "bin": [
     "bin/fetch-exception-code-files",
