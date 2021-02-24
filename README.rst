@@ -6,7 +6,7 @@ Besides editing existing
 on docs.typo3.org, the user should also be able to create a new exception page –
 without being distracted from the usual workflow.
 
-Therefore, the web server simulates a dummy exception page with the familiar
+Therefore, the web server simulates a default exception page with the familiar
 "Edit on GitHub" button when it cannot find the requested exception page.
 When the user clicks the button to add their experience with this exception,
 the web server creates the new exception page on-the-fly before redirecting
@@ -34,10 +34,13 @@ Installation
    `GitHub Docs <https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token>`_
    for further details on how to create an access token.
 
-.. _Maintenance:
-
 Maintenance
 -----------
+
+.. _fetch-exception-codes:
+
+Fetch Exception Codes
+~~~~~~~~~~~~~~~~~~~~~
 
 1. Get the list of available exception codes for each TYPO3 release by running
 
@@ -81,6 +84,40 @@ Maintenance
       docker-compose -f admin.yml run --rm update-exception-code-files
 
 Repeat these steps always when a new TYPO3 version has been released.
+
+.. _refresh-exception-page-template:
+
+Refresh Exception Page template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default exception page template is fetched from an existing exception page
+and exception code specific parts are replaced with placeholders. The lifetime
+of the template is one day, so changes in the general docs.typo3.org template
+are reflected in the default exception page in a timely manner.
+To update the template manually
+
+1. Temporarily decrease the template lifetime to 0 seconds by adding
+
+   .. code-block:: php
+
+      ..
+      $exceptionPage->setTemplateLifetime(0);
+      $exceptionPage->run();
+
+   to the application file ``app/app.php``.
+
+2. Refresh the template file ``app/packages/exception-pages/res/page.html`` by
+   following the steps (1)-(3) of `Manual testing <manual-testing_>`_.
+3. Reset the template lifetime back to one day by removing the line
+
+   .. code-block:: php
+
+      ..
+      $exceptionPage->setTemplateLifetime(0);
+
+   again from the application file.
+
+.. _manual-testing:
 
 Manual testing
 --------------
@@ -142,14 +179,18 @@ Manual testing
 Deployment
 ----------
 
-The essence for the production environment is
+1. The essence for the production environment is
 
-*  the PHP application in folder `app <app>`_
-*  the Nginx configuration in file `default.conf <nginx/files/etc/nginx/conf.d/default.conf>`_
+   *  the PHP application in folder `app <app>`_
+   *  the Nginx configuration in file `default.conf <nginx/files/etc/nginx/conf.d/default.conf>`_
 
-Each push to the remote branch ``master`` triggers a deployment to the production
-server. Thus make sure that you fetched, merged and committed the latest
-exception codes as written in Maintenance_.
+2. Each push to the remote branch ``master`` triggers a deployment to the production
+   server. Thus make sure that you
+
+   *  fetched, merged and committed the latest exception codes as written in
+      `Fetch Exception Codes <fetch-exception-codes_>`_
+   *  fetched, merged and committed the latest default page template as written
+      in `Refresh Exception Page template <refresh-exception-page-template_>`_
 
 Uninstallation
 --------------
