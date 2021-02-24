@@ -178,11 +178,6 @@ class ExceptionPage
                         $node = $crawler->getNode(0);
                         $node->parentNode->removeChild($node);
                     });
-                $crawler->filterXPath('//script[contains(@src, "piwik.js")]')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
 
                 $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
                 $content = str_replace([$this->templateExceptionCode], ['[[[Exception]]]'], $content);
