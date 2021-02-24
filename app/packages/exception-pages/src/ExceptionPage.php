@@ -125,67 +125,108 @@ class ExceptionPage
 
     protected function showDefaultPage(): void
     {
-        $this->refreshDefaultPageIfOutdated();
+        $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents(dirname(__DIR__) . '/res/page.html');
-        $body = file_get_contents(dirname(__DIR__) . '/res/default.html');
-        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exceptionCode], $page);
+        $page = file_get_contents(dirname(__DIR__) . '/res/pageDefault.html');
+        $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
     }
 
-    protected function refreshDefaultPageIfOutdated(): void
+    protected function refreshTemplatesIfOutdated(): void
     {
-        $pagePath = dirname(__DIR__) . '/res/page.html';
-        $pageModificationTime = filemtime($pagePath);
-        if ($pageModificationTime + $this->templateLifetime < time()) {
+        $pageDefaultPath = dirname(__DIR__) . '/res/pageDefault.html';
+        $pageErrorPath = dirname(__DIR__) . '/res/pageError.html';
+        $lastModificationTime = max(filemtime($pageDefaultPath), filemtime($pageErrorPath));
+        if ($lastModificationTime + $this->templateLifetime < time()) {
             try {
-                $crawler = new Crawler(file_get_contents(sprintf($this->exceptionUrl, $this->templateExceptionCode)));
-                $crawler->filterXPath('//link[@rel="prev" or @rel="next"]')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
-                $crawler->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
-                $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
-                    ->each(function(Crawler $crawler, int $index){
-                        $node = $crawler->getNode(0);
-                        if ($index === 0) {
-                            $node->setAttribute('href', '?action=edit');
-                        } else {
-                            $node->setAttribute('href', '?action=source');
-                        }
-                    });
-                $crawler->filterXPath('//div[@itemprop="articleBody"]')
-                    ->getNode(0)->nodeValue = '[[[Body]]]';
-                $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/a[@accesskey="p" or @accesskey="n"]')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
-                $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/nav')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
-                $crawler->filterXPath('//div[@class="footer-additional"]/p[contains(text(), "Last updated") or contains(text(), "Last rendered")]')
-                    ->each(function(Crawler $crawler){
-                        $node = $crawler->getNode(0);
-                        $node->parentNode->removeChild($node);
-                    });
-
-                $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
-                $content = str_replace([$this->templateExceptionCode], ['[[[Exception]]]'], $content);
-                file_put_contents(dirname(__DIR__) . '/res/page.html', $content);
+                $content = file_get_contents(sprintf($this->exceptionUrl, $this->templateExceptionCode));
+                file_put_contents($pageDefaultPath, $this->parseDefaultPage($content));
+                file_put_contents($pageErrorPath, $this->parseErrorPage($content));
             } catch (\Exception $e) {
                 $this->logError('%s (%s)', $e->getMessage(), $e->getCode());
             }
         }
+    }
+
+    protected function parseDefaultPage(string $content): string
+    {
+        $crawler = new Crawler($this->parsePage($content));
+        $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
+            ->each(function(Crawler $crawler, int $index){
+                $node = $crawler->getNode(0);
+                if ($index === 0) {
+                    $node->setAttribute('href', '?action=edit');
+                } else {
+                    $node->setAttribute('href', '?action=source');
+                }
+            });
+
+        $body = file_get_contents(dirname(__DIR__) . '/res/default.html');
+        $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
+        $content = str_replace(['[[[Body]]]'], [$body], $content);
+        return $content;
+    }
+
+    protected function parseErrorPage(string $content): string
+    {
+        $crawler = new Crawler($this->parsePage($content));
+        $crawler->filterXPath('//div[@class="breadcrumb-additions"]')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+
+        $body = file_get_contents(dirname(__DIR__) . '/res/error.html');
+        $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
+        $content = str_replace(['[[[Body]]]'], [$body], $content);
+        return $content;
+    }
+
+    protected function parsePage(string $content): string
+    {
+        $crawler = new Crawler($content);
+        $crawler->filterXPath('//link[@rel="prev" or @rel="next"]')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+        $crawler->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+        $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
+            ->each(function(Crawler $crawler, int $index){
+                $node = $crawler->getNode(0);
+                if ($index === 0) {
+                    $node->setAttribute('href', '?action=edit');
+                } else {
+                    $node->setAttribute('href', '?action=source');
+                }
+            });
+        $crawler->filterXPath('//div[@itemprop="articleBody"]')
+            ->getNode(0)->nodeValue = '[[[Body]]]';
+        $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/a[@accesskey="p" or @accesskey="n"]')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+        $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/nav')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+        $crawler->filterXPath('//div[@class="footer-additional"]/p[contains(text(), "Last updated") or contains(text(), "Last rendered")]')
+            ->each(function(Crawler $crawler){
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            });
+
+        $content = $crawler->outerHtml();
+        $content = str_replace([$this->templateExceptionCode], ['[[[Exception]]]'], $content);
+        return $content;
     }
 
     protected function logError(string $message, ...$args): void
@@ -195,12 +236,11 @@ class ExceptionPage
 
     protected function showError(): void
     {
-        $this->refreshDefaultPageIfOutdated();
+        $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents(dirname(__DIR__) . '/res/page.html');
-        $body = file_get_contents(dirname(__DIR__) . '/res/error.html');
-        $page = str_replace(['[[[Body]]]', '[[[Exception]]]'], [$body, $this->exceptionCode], $page);
+        $page = file_get_contents(dirname(__DIR__) . '/res/pageError.html');
+        $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
     }
