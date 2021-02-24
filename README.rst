@@ -96,26 +96,29 @@ of the template is one day, so changes in the general docs.typo3.org template
 are reflected in the default exception page in a timely manner.
 To update the template manually
 
-1. Temporarily decrease the template lifetime to 0 seconds by adding
+1. Temporarily decrease the template lifetime to 0 seconds by setting
 
    .. code-block:: php
 
       ..
-      $exceptionPage->setTemplateLifetime(0);
-      $exceptionPage->run();
+      'template' => [
+         'lifetime' => 0
+      ]
 
-   to the application file ``app/app.php``.
+   in the configuration file ``app/config.php``.
 
 2. Refresh the template file ``app/packages/exception-pages/res/page.html`` by
    following the steps (1)-(3) of `Manual testing <manual-testing_>`_.
-3. Reset the template lifetime back to one day by removing the line
+3. Revert the template lifetime to one day by setting
 
    .. code-block:: php
 
       ..
-      $exceptionPage->setTemplateLifetime(0);
+      'template' => [
+         'lifetime' => 24 * 3600
+      ]
 
-   again from the application file.
+   in the configuration file.
 
 .. _manual-testing:
 

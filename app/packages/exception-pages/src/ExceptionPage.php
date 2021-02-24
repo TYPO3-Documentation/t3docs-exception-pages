@@ -220,6 +220,11 @@ class ExceptionPage
         $this->templateExceptionCode = $templateExceptionCode;
     }
 
+    public function getTemplateLifetime(): int
+    {
+        return $this->templateLifetime;
+    }
+
     public function setTemplateLifetime(int $templateLifetime): void
     {
         $this->templateLifetime = $templateLifetime;
