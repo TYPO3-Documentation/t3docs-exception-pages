@@ -162,6 +162,21 @@ class ExceptionPage
                     $node->setAttribute('href', '?action=source');
                 }
             });
+        $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
+            ->each(function(Crawler $crawler){
+                // Keep headline + contribution note and replace the remainder
+                // -
+                // Index 0: Headline
+                // Index 1: Contribution note
+                // Index 2..n: Body
+                foreach ($crawler->children() as $index => $child) {
+                    if ($index >= 2) {
+                        $child->parentNode->removeChild($child);
+                    }
+                }
+                $node = $crawler->getNode(0);
+                $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
+            });
 
         $body = file_get_contents(dirname(__DIR__) . '/res/default.html');
         $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
@@ -176,6 +191,21 @@ class ExceptionPage
             ->each(function(Crawler $crawler){
                 $node = $crawler->getNode(0);
                 $node->parentNode->removeChild($node);
+            });
+        $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
+            ->each(function(Crawler $crawler){
+                // Keep headline and replace the remainder by placeholder "[[[Body]]]"
+                // -
+                // Index 0: Headline
+                // Index 1: Contribution note
+                // Index 2..n: Body
+                foreach ($crawler->children() as $index => $child) {
+                    if ($index >= 1) {
+                        $child->parentNode->removeChild($child);
+                    }
+                }
+                $node = $crawler->getNode(0);
+                $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
             });
 
         $body = file_get_contents(dirname(__DIR__) . '/res/error.html');
@@ -206,8 +236,6 @@ class ExceptionPage
                     $node->setAttribute('href', '?action=source');
                 }
             });
-        $crawler->filterXPath('//div[@itemprop="articleBody"]')
-            ->getNode(0)->nodeValue = '[[[Body]]]';
         $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/a[@accesskey="p" or @accesskey="n"]')
             ->each(function(Crawler $crawler){
                 $node = $crawler->getNode(0);

@@ -4,13 +4,43 @@
 TYPO3 Exception [[[Exception]]]
 ==========================
 
-.. note::
-   If you encountered this exception, please help others by providing
-   information about how you got this error. Especially if you have a solution,
-   please add it to this page by following the :ref:`"Edit on GitHub" workflow
-   <docs-contribute-github-method>`!
+.. include:: /If-you-encounter-this-exception.rst.txt
 
-Title
------
 
-Description ..
+Title of your report
+====================
+
+
+System environment and versions
+-------------------------------
+
+((Describe everything to understand the situation: systems, environment,
+versions, ...))
+
+
+What happened?
+--------------
+
+((...))
+
+
+Solutions
+---------
+
+1. What did help?
+
+2. What did not help?
+
+3. ...
+
+
+See also, references, resources
+-------------------------------
+
+((...))
+
+
+What else to consider?
+----------------------
+
+((...))
