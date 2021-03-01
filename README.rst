@@ -12,6 +12,18 @@ When the user clicks the button to add their experience with this exception,
 the web server creates the new exception page on-the-fly before redirecting
 the user to the usual GitHub edit form.
 
+This is the same exception page creation screen of the former wiki.typo3.org
+and the future docs.typo3.org instance:
+
+.. table::
+   :widths: auto
+
+   ================================================   ================================================
+   Wiki (old)                                         Docs (new)
+   ================================================   ================================================
+   .. image:: docs/exception_page_creation_wiki.png   .. image:: docs/exception_page_creation_docs.png
+   ================================================   ================================================
+
 Installation
 ------------
 
@@ -151,8 +163,6 @@ Manual testing
       http://localhost:8080/exceptions/{exceptionnumber}.html
 
    and confirm that it looks like an ordinary TYPO3 Exception Page.
-
-   .. image:: docs/typo3_exception_page_simulation.png
 
 4. Click the "Edit on GitHub" button and confirm that you get redirected to
    the usual GitHub edit form for file
