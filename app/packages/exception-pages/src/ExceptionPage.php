@@ -54,6 +54,9 @@ class ExceptionPage
             } else {
                 $this->showDefaultPage();
             }
+        } catch (\InvalidArgumentException $e) {
+            // do not log invalid exception codes to avoid log flooding
+            $this->showError();
         } catch (\Exception $e) {
             $this->logError('%s (%s)', $e->getMessage(), $e->getCode());
             $this->showError();
@@ -63,7 +66,7 @@ class ExceptionPage
     protected function checkExceptionCode(): void
     {
         if (!$this->exceptionCodes->isValid($this->exceptionCode)) {
-            throw new \Exception(sprintf('This is not a valid exception number: %s.', $this->exceptionCode), 4001);
+            throw new \InvalidArgumentException(sprintf('This is not a valid exception number: %s.', $this->exceptionCode), 4001);
         };
     }
 
