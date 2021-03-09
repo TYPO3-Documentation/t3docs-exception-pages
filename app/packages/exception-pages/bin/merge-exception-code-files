@@ -3,7 +3,10 @@
 
 require dirname(dirname(dirname(dirname(__FILE__)))) . '/vendor/autoload.php';
 
+$config = include dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php';
+
 $typo3ReleasePattern = !empty($argv[1]) ? $argv[1] : '';
-$fileName = !empty($argv[2]) ? $argv[2] : '';
+$mergeFileName = !empty($argv[2]) ? $argv[2] : '';
 $exceptionCodes = new \Typo3\ExceptionPages\ExceptionCodes();
-$exceptionCodes->mergeFiles($typo3ReleasePattern, $fileName);
+$exceptionCodes->setWorkingDir($config['codes']['workingDir'] ?? $exceptionCodes->getWorkingDir());
+$exceptionCodes->mergeFiles($typo3ReleasePattern, $mergeFileName);

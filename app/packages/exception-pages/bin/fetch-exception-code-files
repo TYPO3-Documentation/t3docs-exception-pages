@@ -3,7 +3,10 @@
 
 require dirname(dirname(dirname(dirname(__FILE__)))) . '/vendor/autoload.php';
 
+$config = include dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php';
+
 $typo3ReleasePattern = !empty($argv[1]) ? $argv[1] : '';
 $force = !empty($argv[2]) ? (bool)$argv[2] : false;
 $exceptionCodes = new \Typo3\ExceptionPages\ExceptionCodes();
+$exceptionCodes->setWorkingDir($config['codes']['workingDir'] ?? $exceptionCodes->getWorkingDir());
 $exceptionCodes->fetchFiles($typo3ReleasePattern, $force);

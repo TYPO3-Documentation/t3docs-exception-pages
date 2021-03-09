@@ -11,13 +11,15 @@ class ExceptionCodes
     protected $binDir;
     protected $typo3Dir;
     protected $filesDir;
-    protected $file;
+    protected $workingDir;
+    protected $mergeFile;
 
     public function __construct() {
         $this->binDir = dirname(__DIR__) . '/bin';
         $this->typo3Dir = dirname(__DIR__) . '/res/typo3';
         $this->filesDir = dirname(__DIR__) . '/res/exceptions';
-        $this->file = 'exceptions.php';
+        $this->workingDir = dirname(__DIR__) . '/res/exceptions';
+        $this->mergeFile = 'exceptions.php';
     }
 
     public function fetchFiles(string $typo3ReleasePattern = '', bool $force = false): void
@@ -41,10 +43,13 @@ class ExceptionCodes
             $this->info('Fetching the exception codes of all TYPO3 releases.');
         }
 
+        $this->createFilesDirsIfNotExist();
+        $files = $this->getFiles();
+
         foreach ($tags as $tag) {
             if (empty($typo3ReleasePattern) || preg_match($typo3ReleasePattern, $tag) === 1) {
-                $filePath = $this->filesDir . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag);
-                if ($force || !is_file($filePath)) {
+                $fileName = sprintf('exceptions-%s.json', $tag);
+                if ($force || !isset($files[$fileName])) {
                     try {
                         $exceptionCodesJson = [];
 
@@ -53,6 +58,7 @@ class ExceptionCodes
                         exec(sprintf('git -c advice.detachedHead=false checkout %s', $tag));
                         exec(sprintf('%s/duplicateExceptionCodeCheck.sh -p', $this->binDir), $exceptionCodesJson);
                         $exceptionCodes = json_decode(implode('', $exceptionCodesJson), true);
+                        $filePath = $this->workingDir . DIRECTORY_SEPARATOR . $fileName;
                         file_put_contents($filePath, implode("\n", $exceptionCodesJson));
 
                         $duration = microtime(true) - $start;
@@ -62,7 +68,7 @@ class ExceptionCodes
                         $this->info("Fetching %s exception codes of TYPO3 %s took %s seconds.",
                             $exceptionCodes['total'], $tag, number_format($duration, 2)
                         );
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->error("Fetching the exception codes of TYPO3 %s failed (%s)!",
                             $tag, $e->getMessage()
                         );
@@ -78,62 +84,96 @@ class ExceptionCodes
         );
     }
 
-    public function mergeFiles(string $typo3ReleasePattern = '', string $fileName = ''): void
+    protected function createFilesDirsIfNotExist(): void
     {
-        $exceptions = [];
+        $dirs = array_unique([$this->filesDir, $this->workingDir]);
 
-        if (!empty($typo3ReleasePattern)) {
-            $this->info('Merging the exception codes of TYPO3 releases of pattern "%s" to file "%s".',
-                $typo3ReleasePattern, $fileName
-            );
-        } else {
-            $this->info('Merging the exception codes of all TYPO3 releases to file "%s".',
-                $fileName
-            );
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                if (@mkdir($dir)) {
+                    $this->info('Directory %s created successfully.', $dir);
+                } else {
+                    $this->error('Directory %s cannot be created.', $dir);
+                    exit;
+                }
+            }
         }
+    }
 
-        if ($handle = opendir($this->filesDir)) {
-            while (false !== ($file = readdir($handle))) {
-                $filePath = $this->filesDir . DIRECTORY_SEPARATOR . $file;
-                if (is_file($filePath)) {
-                    $pathInfo = pathinfo($filePath);
-                    if ($pathInfo['extension'] === 'json') {
-                        if (empty($typo3ReleasePattern) || preg_match($typo3ReleasePattern, $pathInfo['filename']) === 1) {
-                            try {
-                                $exceptionsOfFile = json_decode(file_get_contents($filePath), true);
-                                $numExceptionsOfFile = 0;
-                                if (is_array($exceptionsOfFile['exceptions'])) {
-                                    $numExceptionsOfFile = count($exceptionsOfFile['exceptions']);
-                                    if (empty($exceptions)) {
-                                        $exceptions = $exceptionsOfFile['exceptions'];
-                                    } else {
-                                        foreach ($exceptionsOfFile['exceptions'] as &$code) {
-                                            if (!isset($exceptions[$code])) {
-                                                $exceptions[$code] = $code;
-                                            }
-                                        }
-                                    }
-                                }
-                                $this->info("File %s contains %d exception codes.", $filePath, $numExceptionsOfFile);
-                            } catch (\Exception $e) {
-                                $this->error("File %s could not be parsed (%s)!", $filePath, $e->getMessage());
+    protected function getFiles(): array
+    {
+        $dirs = array_unique([$this->filesDir, $this->workingDir]);
+        $files = [];
+
+        foreach ($dirs as $dir) {
+            if (is_dir($dir)) {
+                if ($handle = opendir($dir)) {
+                    while (false !== ($file = readdir($handle))) {
+                        $filePath = $dir . DIRECTORY_SEPARATOR . $file;
+                        if (is_file($filePath)) {
+                            $pathInfo = pathinfo($filePath);
+                            if ($pathInfo['extension'] === 'json') {
+                                $files[$pathInfo['basename']] = $filePath;
                             }
                         }
                     }
                 }
             }
-            closedir($handle);
+        }
+
+        return $files;
+    }
+
+    public function mergeFiles(string $typo3ReleasePattern = '', string $mergeFileName = ''): void
+    {
+        $exceptions = [];
+        $mergeFileName = !empty($mergeFileName) ? $mergeFileName : $this->mergeFile;
+
+        if (!empty($typo3ReleasePattern)) {
+            $this->info('Merging the exception codes of TYPO3 releases of pattern "%s" to file "%s".',
+                $typo3ReleasePattern, $mergeFileName
+            );
+        } else {
+            $this->info('Merging the exception codes of all TYPO3 releases to file "%s".',
+                $mergeFileName
+            );
+        }
+
+        $this->createFilesDirsIfNotExist();
+        $files = $this->getFiles();
+
+        foreach ($files as $fileName => $filePath) {
+            if (empty($typo3ReleasePattern) || preg_match($typo3ReleasePattern, $fileName) === 1) {
+                try {
+                    $exceptionsOfFile = json_decode(file_get_contents($filePath), true);
+                    $numExceptionsOfFile = 0;
+                    if (is_array($exceptionsOfFile['exceptions'])) {
+                        $numExceptionsOfFile = count($exceptionsOfFile['exceptions']);
+                        if (empty($exceptions)) {
+                            $exceptions = $exceptionsOfFile['exceptions'];
+                        } else {
+                            foreach ($exceptionsOfFile['exceptions'] as &$code) {
+                                if (!isset($exceptions[$code])) {
+                                    $exceptions[$code] = $code;
+                                }
+                            }
+                        }
+                    }
+                    $this->info("File %s contains %d exception codes.", $filePath, $numExceptionsOfFile);
+                } catch (\Exception $e) {
+                    $this->error("File %s could not be parsed (%s)!", $filePath, $e->getMessage());
+                }
+            }
         }
 
         ksort($exceptions);
 
-        $fileName = !empty($fileName) ? $fileName : $this->file;
-        $filePath = $this->filesDir . DIRECTORY_SEPARATOR . $fileName;
-        $pathInfo = pathinfo($filePath);
+        $mergeFilePath = $this->workingDir . DIRECTORY_SEPARATOR . $mergeFileName;
+        $pathInfo = pathinfo($mergeFilePath);
 
         if ($pathInfo['extension'] === 'json') {
             file_put_contents(
-                $filePath,
+                $mergeFilePath,
                 json_encode([
                     'exceptions' => $exceptions,
                     'total' => count($exceptions),
@@ -141,7 +181,7 @@ class ExceptionCodes
             );
         } else {
             file_put_contents(
-                $filePath,
+                $mergeFilePath,
                 sprintf("<?php\nreturn %s;", var_export([
                     'exceptions' => $exceptions,
                     'total' => count($exceptions),
@@ -151,7 +191,7 @@ class ExceptionCodes
 
         $this->info(
             "File %s contains %d exception codes in total.",
-            $filePath,
+            $mergeFilePath,
             count($exceptions)
         );
     }
@@ -165,8 +205,8 @@ class ExceptionCodes
     protected function loadFile(): void
     {
         if (empty($this->exceptionCodes)) {
-            if (is_file($this->filesDir . DIRECTORY_SEPARATOR . $this->file)) {
-                $data = include $this->filesDir . DIRECTORY_SEPARATOR . $this->file;
+            if (is_file($this->workingDir . DIRECTORY_SEPARATOR . $this->mergeFile)) {
+                $data = include $this->workingDir . DIRECTORY_SEPARATOR . $this->mergeFile;
                 $this->exceptionCodes = $data['exceptions'];
             }
         }
@@ -203,13 +243,18 @@ class ExceptionCodes
         $this->typo3Dir = $typo3Dir;
     }
 
-    public function setFilesDir(string $filesDir): void
+    public function getWorkingDir(): string
     {
-        $this->filesDir = $filesDir;
+        return $this->workingDir;
     }
 
-    public function setFile(string $file): void
+    public function setWorkingDir(string $workingDir): void
     {
-        $this->file = $file;
+        $this->workingDir = $workingDir;
+    }
+
+    public function setMergeFile(string $mergeFile): void
+    {
+        $this->mergeFile = $mergeFile;
     }
 }
