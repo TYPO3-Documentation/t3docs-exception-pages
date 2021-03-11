@@ -11,17 +11,13 @@ class ExceptionCodesTest extends TestCase
 {
     protected static $workingDir;
     protected static $typo3Dir;
-    protected static $tag;
-    protected static $fileName;
-    protected static $mergeFile;
+    protected static $tags;
 
     public static function setUpBeforeClass(): void
     {
         self::$workingDir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tmp/working_dir';
         self::$typo3Dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tmp/typo3';
-        self::$tag = 'v10.4.9';
-        self::$fileName = sprintf('exceptions-%s.json', self::$tag);
-        self::$mergeFile = 'exceptions.php';
+        self::$tags = ['v10.4.8', 'v10.4.9'];
     }
 
     /**
@@ -36,10 +32,14 @@ class ExceptionCodesTest extends TestCase
         $exceptionCodes->setFilesDir(self::$workingDir);
 
         $exceptionCodes->deleteFilesDirs();
-        $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . self::$fileName);
+        foreach (self::$tags as $tag) {
+            $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
+        }
 
-        $exceptionCodes->fetchFiles(sprintf('|%s|', self::$tag));
-        $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . self::$fileName);
+        $exceptionCodes->fetchFiles(sprintf('/%s/', implode('|', self::$tags)));
+        foreach (self::$tags as $tag) {
+            $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
+        }
     }
 
     /**
@@ -49,11 +49,16 @@ class ExceptionCodesTest extends TestCase
      */
     public function fetchFilesCreatesProperExceptionCodesFile(): void
     {
-        $exceptionsOfFile = json_decode(file_get_contents(self::$workingDir . DIRECTORY_SEPARATOR . self::$fileName), true);
+        foreach (self::$tags as $tag) {
+            $exceptionsOfFile = json_decode(
+                file_get_contents(self::$workingDir . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
+                true
+            );
 
-        $this->assertIsArray($exceptionsOfFile['exceptions']);
-        $this->assertIsInt($exceptionsOfFile['total']);
-        $this->assertEquals(count($exceptionsOfFile['exceptions']), $exceptionsOfFile['total']);
+            $this->assertIsArray($exceptionsOfFile['exceptions']);
+            $this->assertIsInt($exceptionsOfFile['total']);
+            $this->assertEquals(count($exceptionsOfFile['exceptions']), $exceptionsOfFile['total']);
+        }
     }
 
     /**
@@ -69,11 +74,11 @@ class ExceptionCodesTest extends TestCase
         // ignore existing exception codes files
         $exceptionCodes->setFilesDir(self::$workingDir);
 
-        $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . self::$mergeFile);
+        $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions.php');
 
-        $exceptionCodes->mergeFiles('', self::$mergeFile);
+        $exceptionCodes->mergeFiles();
 
-        $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . self::$mergeFile);
+        $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions.php');
     }
 
     /**
@@ -83,11 +88,20 @@ class ExceptionCodesTest extends TestCase
      */
     public function mergeFilesCreatesProperMergeFile(): void
     {
-        $exceptionsOfFile = include self::$workingDir . DIRECTORY_SEPARATOR . self::$mergeFile;
+        $exceptionsOfMergeFile = include self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions.php';
 
-        $this->assertIsArray($exceptionsOfFile['exceptions']);
-        $this->assertIsInt($exceptionsOfFile['total']);
-        $this->assertEquals(count($exceptionsOfFile['exceptions']), $exceptionsOfFile['total']);
+        $this->assertIsArray($exceptionsOfMergeFile['exceptions']);
+        $this->assertIsInt($exceptionsOfMergeFile['total']);
+        $this->assertEquals(count($exceptionsOfMergeFile['exceptions']), $exceptionsOfMergeFile['total']);
+
+        foreach (self::$tags as $tag) {
+            $exceptionsOfFile = json_decode(
+                file_get_contents(self::$workingDir . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
+                true
+            );
+
+            $this->assertGreaterThanOrEqual($exceptionsOfFile['total'], $exceptionsOfMergeFile['total']);
+        }
     }
 
     /**
