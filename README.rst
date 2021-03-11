@@ -190,6 +190,19 @@ Manual testing
       # MacOS and Windows
       docker-compose down
 
+Automatic testing
+-----------------
+
+Run the integrated tests by
+
+.. code-block:: bash
+
+   # Linux
+   make tests
+
+   # MacOS and Windows
+   docker-compose -f admin.yml run --rm run-tests
+
 Deployment
 ----------
 

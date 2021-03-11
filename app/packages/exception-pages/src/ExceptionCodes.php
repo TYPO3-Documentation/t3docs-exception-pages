@@ -100,6 +100,23 @@ class ExceptionCodes
         }
     }
 
+    public function deleteFilesDirs(): void
+    {
+        $dirs = array_unique([$this->filesDir, $this->workingDir]);
+
+        foreach ($dirs as $dir) {
+            if (is_dir($dir)) {
+                $files = glob($dir . '/*', GLOB_MARK);
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+                rmdir($dir);
+            }
+        }
+    }
+
     protected function getFiles(): array
     {
         $dirs = array_unique([$this->filesDir, $this->workingDir]);
@@ -241,6 +258,11 @@ class ExceptionCodes
     public function setTypo3Dir(string $typo3Dir): void
     {
         $this->typo3Dir = $typo3Dir;
+    }
+
+    public function setFilesDir(string $filesDir): void
+    {
+        $this->filesDir = $filesDir;
     }
 
     public function getWorkingDir(): string

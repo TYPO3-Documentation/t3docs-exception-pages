@@ -14,6 +14,11 @@
       "Typo3\\ExceptionPages\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Typo3\\ExceptionPages\\Tests\\": "tests/"
+    }
+  },
   "require": {
     "symfony/dom-crawler": "^5.2",
     "symfony/http-client": "^5.2",
