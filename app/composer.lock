@@ -788,7 +788,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/exception-pages",
-                "reference": "4fa80e52ff90d60cc075108496f1cfa4ebf10da5"
+                "reference": "065f49bf03fa88609c274f97797d9ccb4ed195e0"
             },
             "require": {
                 "masterminds/html5": "^2.7",
@@ -807,7 +807,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Typo3\\ExceptionPages\\Tests\\": "tests/"
+                    "Typo3\\ExceptionPages\\Tests\\Functional\\": "tests/functional/"
                 }
             },
             "license": [

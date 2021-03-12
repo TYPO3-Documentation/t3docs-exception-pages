@@ -16,7 +16,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Typo3\\ExceptionPages\\Tests\\": "tests/"
+      "Typo3\\ExceptionPages\\Tests\\Functional\\": "tests/functional/"
     }
   },
   "require": {

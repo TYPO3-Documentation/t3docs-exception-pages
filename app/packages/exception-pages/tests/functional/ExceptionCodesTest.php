@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typo3\ExceptionPages\Tests;
+namespace Typo3\ExceptionPages\Tests\Functional;
 
 use Typo3\ExceptionPages\ExceptionCodes;
 
@@ -14,8 +14,8 @@ class ExceptionCodesTest extends AbstractTestBase
 
     public static function setUpBeforeClass(): void
     {
-        self::$workingDir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tmp/working_dir';
-        self::$typo3Dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'tmp/typo3';
+        self::$workingDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'tmp/working_dir';
+        self::$typo3Dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'tmp/typo3';
         self::$tags = ['v10.4.8', 'v10.4.9'];
     }
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typo3\ExceptionPages\Tests;
+namespace Typo3\ExceptionPages\Tests\Functional;
 
 use Typo3\ExceptionPages\ExceptionPage;
 
