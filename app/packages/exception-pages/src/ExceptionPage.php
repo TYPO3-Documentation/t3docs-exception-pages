@@ -34,7 +34,7 @@ class ExceptionPage
         $this->exceptionUrl = 'https://docs.typo3.org/typo3cms/exceptions/master/en-us/Exceptions/%s.html';
         $this->templateExceptionCode = 1166546734;
         $this->templateLifetime = 24 * 3600;
-        $this->templateDir = dirname(__DIR__) . '/res';
+        $this->templateDir = dirname(__DIR__) . '/res/templates';
 
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';

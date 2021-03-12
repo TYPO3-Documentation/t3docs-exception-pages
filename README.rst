@@ -119,8 +119,8 @@ To update the template manually
 
    in the configuration file ``app/config.php``.
 
-2. Refresh the template files ``app/packages/exception-pages/res/pageDefault.html``
-   and ``app/packages/exception-pages/res/pageError.html`` by
+2. Refresh the template files ``app/packages/exception-pages/res/templates/pageDefault.html``
+   and ``app/packages/exception-pages/res/templates/pageError.html`` by
    following the steps (1)-(3) of `Manual testing <manual-testing_>`_.
 3. Revert the template lifetime to one day by setting
 
