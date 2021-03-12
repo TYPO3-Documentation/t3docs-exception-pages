@@ -24,10 +24,10 @@ class ExceptionPageTest extends AbstractTestBase
         $exceptionPage->setWorkingDir(self::$workingDir);
         $exceptionPage->setTemplateLifetime(0);
 
-        $pageDefaultPath = self::$workingDir . '/templates/pageDefault.html';
-        $pageErrorPath = self::$workingDir . '/templates/pageError.html';
+        $pageDefaultPath = $exceptionPage->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html';
+        $pageErrorPath = $exceptionPage->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html';
 
-        $this->deleteDirectory(self::$workingDir . '/templates');
+        $this->deleteDirectory($exceptionPage->getTemplatesWorkingDir());
 
         $this->assertFileNotExists($pageDefaultPath);
         $this->assertFileNotExists($pageErrorPath);
@@ -48,8 +48,8 @@ class ExceptionPageTest extends AbstractTestBase
         $exceptionPage = new ExceptionPage('1166543253');
         $exceptionPage->setWorkingDir(self::$workingDir);
 
-        $pageDefaultContent = file_get_contents(self::$workingDir . '/templates/pageDefault.html');
-        $pageErrorContent = file_get_contents(self::$workingDir . '/templates/pageError.html');
+        $pageDefaultContent = file_get_contents($exceptionPage->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html');
+        $pageErrorContent = file_get_contents($exceptionPage->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html');
 
         $this->assertStringContainsString('<h1>TYPO3 Exception [[[Exception]]]', $pageDefaultContent);
         $this->assertStringContainsString('href="?action=edit"', $pageDefaultContent);

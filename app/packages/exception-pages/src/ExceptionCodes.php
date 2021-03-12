@@ -15,19 +15,19 @@ class ExceptionCodes
 
     public function __construct()
     {
-        $this->binDir = dirname(__DIR__) . '/bin';
-        $this->resourcesDir = dirname(__DIR__) . '/res';
-        $this->workingDir = dirname(__DIR__) . '/res';
+        $this->binDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'bin';
+        $this->resourcesDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
+        $this->workingDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
         $this->mergeFile = 'exceptions.php';
     }
 
     public function fetchFiles(string $typo3ReleasePattern = '', bool $force = false): void
     {
-        if (!is_dir($this->workingDir . DIRECTORY_SEPARATOR . 'typo3')) {
-            exec(sprintf('git clone git://git.typo3.org/Packages/TYPO3.CMS.git %s', $this->workingDir . DIRECTORY_SEPARATOR . 'typo3'));
+        if (!is_dir($this->getTypo3Dir())) {
+            exec(sprintf('git clone git://git.typo3.org/Packages/TYPO3.CMS.git %s', $this->getTypo3Dir()));
         }
 
-        chdir($this->workingDir . DIRECTORY_SEPARATOR . 'typo3');
+        chdir($this->getTypo3Dir());
 
         exec('git checkout master');
         exec('git pull');
@@ -57,7 +57,7 @@ class ExceptionCodes
                         exec(sprintf('git -c advice.detachedHead=false checkout %s', $tag));
                         exec(sprintf('%s/duplicateExceptionCodeCheck.sh -p', $this->binDir), $exceptionCodesJson);
                         $exceptionCodes = json_decode(implode('', $exceptionCodesJson), true);
-                        $filePath = $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $fileName;
+                        $filePath = $this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $fileName;
                         file_put_contents($filePath, implode("\n", $exceptionCodesJson));
 
                         $duration = microtime(true) - $start;
@@ -85,7 +85,7 @@ class ExceptionCodes
 
     protected function createWorkingDirsIfNotExist(): void
     {
-        $dirs = array_unique([$this->workingDir . DIRECTORY_SEPARATOR . 'exceptions']);
+        $dirs = array_unique([$this->getExceptionCodesWorkingDir()]);
 
         foreach ($dirs as $dir) {
             if (!is_dir($dir)) {
@@ -101,7 +101,7 @@ class ExceptionCodes
 
     protected function getFiles(): array
     {
-        $dirs = array_unique([$this->resourcesDir . DIRECTORY_SEPARATOR . 'exceptions', $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions']);
+        $dirs = array_unique([$this->getExceptionCodesResourcesDir(), $this->getExceptionCodesWorkingDir()]);
         $files = [];
 
         foreach ($dirs as $dir) {
@@ -167,7 +167,7 @@ class ExceptionCodes
 
         ksort($exceptions);
 
-        $mergeFilePath = $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $mergeFileName;
+        $mergeFilePath = $this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $mergeFileName;
         $pathInfo = pathinfo($mergeFilePath);
 
         if ($pathInfo['extension'] === 'json') {
@@ -204,8 +204,8 @@ class ExceptionCodes
     protected function loadFile(): void
     {
         if (empty($this->exceptionCodes)) {
-            if (is_file($this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $this->mergeFile)) {
-                $data = include $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $this->mergeFile;
+            if (is_file($this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $this->mergeFile)) {
+                $data = include $this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $this->mergeFile;
                 $this->exceptionCodes = $data['exceptions'];
             }
         }
@@ -240,6 +240,21 @@ class ExceptionCodes
     public function setWorkingDir(string $workingDir): void
     {
         $this->workingDir = $workingDir;
+    }
+
+    public function getTypo3Dir(): string
+    {
+        return $this->workingDir . DIRECTORY_SEPARATOR . 'typo3';
+    }
+
+    public function getExceptionCodesWorkingDir(): string
+    {
+        return $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions';
+    }
+
+    public function getExceptionCodesResourcesDir(): string
+    {
+        return $this->resourcesDir . DIRECTORY_SEPARATOR . 'exceptions';
     }
 
     public function setMergeFile(string $mergeFile): void

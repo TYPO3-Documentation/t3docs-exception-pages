@@ -25,14 +25,14 @@ class ExceptionCodesTest extends AbstractTestBase
         $exceptionCodes = new ExceptionCodes();
         $exceptionCodes->setWorkingDir(self::$workingDir);
 
-        $this->deleteDirectory(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions');
+        $this->deleteDirectory($exceptionCodes->getExceptionCodesWorkingDir());
         foreach (self::$tags as $tag) {
-            $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
+            $this->assertFileNotExists($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
         }
 
         $exceptionCodes->fetchFiles(sprintf('/%s/', implode('|', self::$tags)), true);
         foreach (self::$tags as $tag) {
-            $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
+            $this->assertFileExists($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag));
         }
     }
 
@@ -43,9 +43,12 @@ class ExceptionCodesTest extends AbstractTestBase
      */
     public function fetchFilesCreatesProperExceptionCodesFile(): void
     {
+        $exceptionCodes = new ExceptionCodes();
+        $exceptionCodes->setWorkingDir(self::$workingDir);
+
         foreach (self::$tags as $tag) {
             $exceptionsOfFile = json_decode(
-                file_get_contents(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
+                file_get_contents($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
                 true
             );
 
@@ -65,11 +68,11 @@ class ExceptionCodesTest extends AbstractTestBase
         $exceptionCodes = new ExceptionCodes();
         $exceptionCodes->setWorkingDir(self::$workingDir);
 
-        $this->assertFileNotExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . 'exceptions.php');
+        $this->assertFileNotExists($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . 'exceptions.php');
 
         $exceptionCodes->mergeFiles();
 
-        $this->assertFileExists(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . 'exceptions.php');
+        $this->assertFileExists($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . 'exceptions.php');
     }
 
     /**
@@ -79,7 +82,9 @@ class ExceptionCodesTest extends AbstractTestBase
      */
     public function mergeFilesCreatesProperMergeFile(): void
     {
-        $exceptionsOfMergeFile = include self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . 'exceptions.php';
+        $exceptionCodes = new ExceptionCodes();
+        $exceptionCodes->setWorkingDir(self::$workingDir);
+        $exceptionsOfMergeFile = include $exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . 'exceptions.php';
 
         $this->assertIsArray($exceptionsOfMergeFile['exceptions']);
         $this->assertIsInt($exceptionsOfMergeFile['total']);
@@ -87,7 +92,7 @@ class ExceptionCodesTest extends AbstractTestBase
 
         foreach (self::$tags as $tag) {
             $exceptionsOfFile = json_decode(
-                file_get_contents(self::$workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
+                file_get_contents($exceptionCodes->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . sprintf('exceptions-%s.json', $tag)),
                 true
             );
 

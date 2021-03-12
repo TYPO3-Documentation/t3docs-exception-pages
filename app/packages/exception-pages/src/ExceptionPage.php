@@ -37,8 +37,8 @@ class ExceptionPage
         $this->templateExceptionCode = 1166546734;
         $this->templateLifetime = 24 * 3600;
 
-        $this->resourcesDir = dirname(__DIR__) . '/res';
-        $this->workingDir = dirname(__DIR__) . '/res';
+        $this->resourcesDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
+        $this->workingDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
 
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
@@ -78,7 +78,7 @@ class ExceptionPage
 
     protected function createPage(): void
     {
-        $rst = file_get_contents($this->resourcesDir . '/templates/default.rst');
+        $rst = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.rst');
         $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
 
         try {
@@ -126,7 +126,7 @@ class ExceptionPage
     {
         header('Content-Type: text/plain');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $rst = file_get_contents($this->resourcesDir . '/templates/default.rst');
+        $rst = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.rst');
         $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
         echo $rst;
         exit;
@@ -137,7 +137,7 @@ class ExceptionPage
         $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents($this->workingDir . '/templates/pageDefault.html');
+        $page = file_get_contents($this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html');
         $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
@@ -145,16 +145,16 @@ class ExceptionPage
 
     protected function refreshTemplatesIfOutdated(): void
     {
-        $pageDefaultPath = $this->workingDir . '/templates/pageDefault.html';
-        $pageErrorPath = $this->workingDir . '/templates/pageError.html';
+        $pageDefaultPath = $this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html';
+        $pageErrorPath = $this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html';
 
         if (!is_file($pageDefaultPath)) {
             $this->createWorkingDirsIfNotExist();
-            copy($this->resourcesDir . '/templates/pageDefault.html', $pageDefaultPath);
+            copy($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'pageDefault.html', $pageDefaultPath);
         }
         if (!is_file($pageErrorPath)) {
             $this->createWorkingDirsIfNotExist();
-            copy($this->resourcesDir . '/templates/pageError.html', $pageErrorPath);
+            copy($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'pageError.html', $pageErrorPath);
         }
 
         $lastModificationTime = max(filemtime($pageDefaultPath), filemtime($pageErrorPath));
@@ -171,7 +171,7 @@ class ExceptionPage
 
     protected function createWorkingDirsIfNotExist(): void
     {
-        $dirs = array_unique([$this->workingDir . '/templates']);
+        $dirs = array_unique([$this->getTemplatesWorkingDir()]);
 
         foreach ($dirs as $dir) {
             if (!is_dir($dir)) {
@@ -210,7 +210,7 @@ class ExceptionPage
                 $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
             });
 
-        $body = file_get_contents($this->resourcesDir . '/templates/default.html');
+        $body = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.html');
         $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
         $content = str_replace(['[[[Body]]]'], [$body], $content);
         return $content;
@@ -240,7 +240,7 @@ class ExceptionPage
                 $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
             });
 
-        $body = file_get_contents($this->resourcesDir . '/templates/error.html');
+        $body = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'error.html');
         $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
         $content = str_replace(['[[[Body]]]'], [$body], $content);
         return $content;
@@ -299,7 +299,7 @@ class ExceptionPage
         $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents($this->workingDir . '/templates/pageError.html');
+        $page = file_get_contents($this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html');
         $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
@@ -334,6 +334,16 @@ class ExceptionPage
     {
         $this->workingDir = $workingDir;
         $this->exceptionCodes->setWorkingDir($workingDir);
+    }
+
+    public function getTemplatesResourcesDir(): string
+    {
+        return $this->resourcesDir . DIRECTORY_SEPARATOR . 'templates';
+    }
+
+    public function getTemplatesWorkingDir(): string
+    {
+        return $this->workingDir . DIRECTORY_SEPARATOR . 'templates';
     }
 
     public function setGitHubUser(string $user): void
