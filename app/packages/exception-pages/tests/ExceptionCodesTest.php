@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Typo3\ExceptionPages\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Typo3\ExceptionPages\ExceptionCodes;
 
-class ExceptionCodesTest extends TestCase
+class ExceptionCodesTest extends AbstractTestBase
 {
     protected static $workingDir;
     protected static $typo3Dir;

@@ -79,9 +79,10 @@ services:
       - ./app:/var/www/app
     environment:
       - SCRIPT_VERBOSE=0
+      - PHPUNIT_FLAGS=packages/exception-pages/tests/*Test.php
     command: >
       /bin/sh -c '
         [ "$${SCRIPT_VERBOSE}" -eq "1" ] && set -x;
         cd app;
-        ./vendor/bin/phpunit packages/exception-pages/tests/*;
+        ./vendor/bin/phpunit $${PHPUNIT_FLAGS};
       '

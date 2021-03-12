@@ -16,6 +16,7 @@ class ExceptionPage
     protected $exceptionUrl;
     protected $templateExceptionCode;
     protected $templateLifetime;
+    protected $templateDir;
 
     protected $gitHubUser;
     protected $gitHubToken;
@@ -33,6 +34,7 @@ class ExceptionPage
         $this->exceptionUrl = 'https://docs.typo3.org/typo3cms/exceptions/master/en-us/Exceptions/%s.html';
         $this->templateExceptionCode = 1166546734;
         $this->templateLifetime = 24 * 3600;
+        $this->templateDir = dirname(__DIR__) . '/res';
 
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
@@ -72,7 +74,7 @@ class ExceptionPage
 
     protected function createPage(): void
     {
-        $rst = file_get_contents(dirname(__DIR__) . '/res/default.rst');
+        $rst = file_get_contents($this->templateDir . '/default.rst');
         $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
 
         try {
@@ -120,7 +122,7 @@ class ExceptionPage
     {
         header('Content-Type: text/plain');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $rst = file_get_contents(dirname(__DIR__) . '/res/default.rst');
+        $rst = file_get_contents($this->templateDir . '/default.rst');
         $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
         echo $rst;
         exit;
@@ -131,7 +133,7 @@ class ExceptionPage
         $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents(dirname(__DIR__) . '/res/pageDefault.html');
+        $page = file_get_contents($this->templateDir . '/pageDefault.html');
         $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
@@ -139,8 +141,8 @@ class ExceptionPage
 
     protected function refreshTemplatesIfOutdated(): void
     {
-        $pageDefaultPath = dirname(__DIR__) . '/res/pageDefault.html';
-        $pageErrorPath = dirname(__DIR__) . '/res/pageError.html';
+        $pageDefaultPath = $this->templateDir . '/pageDefault.html';
+        $pageErrorPath = $this->templateDir . '/pageError.html';
         $lastModificationTime = max(filemtime($pageDefaultPath), filemtime($pageErrorPath));
         if ($lastModificationTime + $this->templateLifetime < time()) {
             try {
@@ -181,7 +183,7 @@ class ExceptionPage
                 $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
             });
 
-        $body = file_get_contents(dirname(__DIR__) . '/res/default.html');
+        $body = file_get_contents($this->templateDir . '/default.html');
         $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
         $content = str_replace(['[[[Body]]]'], [$body], $content);
         return $content;
@@ -211,7 +213,7 @@ class ExceptionPage
                 $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
             });
 
-        $body = file_get_contents(dirname(__DIR__) . '/res/error.html');
+        $body = file_get_contents($this->templateDir . '/error.html');
         $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
         $content = str_replace(['[[[Body]]]'], [$body], $content);
         return $content;
@@ -270,7 +272,7 @@ class ExceptionPage
         $this->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents(dirname(__DIR__) . '/res/pageError.html');
+        $page = file_get_contents($this->templateDir . '/pageError.html');
         $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
         echo $page;
         exit;
@@ -299,6 +301,16 @@ class ExceptionPage
     public function setTemplateLifetime(int $templateLifetime): void
     {
         $this->templateLifetime = $templateLifetime;
+    }
+
+    public function getTemplateDir(): string
+    {
+        return $this->templateDir;
+    }
+
+    public function setTemplateDir(string $templateDir): void
+    {
+        $this->templateDir = $templateDir;
     }
 
     public function setGitHubUser(string $user): void
