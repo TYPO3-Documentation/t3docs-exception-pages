@@ -9,26 +9,25 @@ class ExceptionCodes
     protected $exceptionCodes;
 
     protected $binDir;
-    protected $typo3Dir;
-    protected $filesDir;
+    protected $resourcesDir;
     protected $workingDir;
     protected $mergeFile;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->binDir = dirname(__DIR__) . '/bin';
-        $this->typo3Dir = dirname(__DIR__) . '/res/typo3';
-        $this->filesDir = dirname(__DIR__) . '/res/exceptions';
-        $this->workingDir = dirname(__DIR__) . '/res/exceptions';
+        $this->resourcesDir = dirname(__DIR__) . '/res';
+        $this->workingDir = dirname(__DIR__) . '/res';
         $this->mergeFile = 'exceptions.php';
     }
 
     public function fetchFiles(string $typo3ReleasePattern = '', bool $force = false): void
     {
-        if (!is_dir($this->typo3Dir)) {
-            exec(sprintf('git clone git://git.typo3.org/Packages/TYPO3.CMS.git %s', $this->typo3Dir));
+        if (!is_dir($this->workingDir . DIRECTORY_SEPARATOR . 'typo3')) {
+            exec(sprintf('git clone git://git.typo3.org/Packages/TYPO3.CMS.git %s', $this->workingDir . DIRECTORY_SEPARATOR . 'typo3'));
         }
 
-        chdir($this->typo3Dir);
+        chdir($this->workingDir . DIRECTORY_SEPARATOR . 'typo3');
 
         exec('git checkout master');
         exec('git pull');
@@ -43,7 +42,7 @@ class ExceptionCodes
             $this->info('Fetching the exception codes of all TYPO3 releases.');
         }
 
-        $this->createFilesDirsIfNotExist();
+        $this->createWorkingDirsIfNotExist();
         $files = $this->getFiles();
 
         foreach ($tags as $tag) {
@@ -58,7 +57,7 @@ class ExceptionCodes
                         exec(sprintf('git -c advice.detachedHead=false checkout %s', $tag));
                         exec(sprintf('%s/duplicateExceptionCodeCheck.sh -p', $this->binDir), $exceptionCodesJson);
                         $exceptionCodes = json_decode(implode('', $exceptionCodesJson), true);
-                        $filePath = $this->workingDir . DIRECTORY_SEPARATOR . $fileName;
+                        $filePath = $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $fileName;
                         file_put_contents($filePath, implode("\n", $exceptionCodesJson));
 
                         $duration = microtime(true) - $start;
@@ -84,13 +83,13 @@ class ExceptionCodes
         );
     }
 
-    protected function createFilesDirsIfNotExist(): void
+    protected function createWorkingDirsIfNotExist(): void
     {
-        $dirs = array_unique([$this->filesDir, $this->workingDir]);
+        $dirs = array_unique([$this->workingDir . DIRECTORY_SEPARATOR . 'exceptions']);
 
         foreach ($dirs as $dir) {
             if (!is_dir($dir)) {
-                if (@mkdir($dir)) {
+                if (@mkdir($dir, 0777, true) === true) {
                     $this->info('Directory %s created successfully.', $dir);
                 } else {
                     $this->error('Directory %s cannot be created.', $dir);
@@ -100,26 +99,9 @@ class ExceptionCodes
         }
     }
 
-    public function deleteFilesDirs(): void
-    {
-        $dirs = array_unique([$this->filesDir, $this->workingDir]);
-
-        foreach ($dirs as $dir) {
-            if (is_dir($dir)) {
-                $files = glob($dir . '/*', GLOB_MARK);
-                foreach ($files as $file) {
-                    if (is_file($file)) {
-                        unlink($file);
-                    }
-                }
-                rmdir($dir);
-            }
-        }
-    }
-
     protected function getFiles(): array
     {
-        $dirs = array_unique([$this->filesDir, $this->workingDir]);
+        $dirs = array_unique([$this->resourcesDir . DIRECTORY_SEPARATOR . 'exceptions', $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions']);
         $files = [];
 
         foreach ($dirs as $dir) {
@@ -156,7 +138,7 @@ class ExceptionCodes
             );
         }
 
-        $this->createFilesDirsIfNotExist();
+        $this->createWorkingDirsIfNotExist();
         $files = $this->getFiles();
 
         foreach ($files as $fileName => $filePath) {
@@ -185,7 +167,7 @@ class ExceptionCodes
 
         ksort($exceptions);
 
-        $mergeFilePath = $this->workingDir . DIRECTORY_SEPARATOR . $mergeFileName;
+        $mergeFilePath = $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $mergeFileName;
         $pathInfo = pathinfo($mergeFilePath);
 
         if ($pathInfo['extension'] === 'json') {
@@ -222,8 +204,8 @@ class ExceptionCodes
     protected function loadFile(): void
     {
         if (empty($this->exceptionCodes)) {
-            if (is_file($this->workingDir . DIRECTORY_SEPARATOR . $this->mergeFile)) {
-                $data = include $this->workingDir . DIRECTORY_SEPARATOR . $this->mergeFile;
+            if (is_file($this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $this->mergeFile)) {
+                $data = include $this->workingDir . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR . $this->mergeFile;
                 $this->exceptionCodes = $data['exceptions'];
             }
         }
@@ -253,21 +235,6 @@ class ExceptionCodes
         ];
 
         printf($levelPrefix[$level] . $message . "\n", ...$args);
-    }
-
-    public function setTypo3Dir(string $typo3Dir): void
-    {
-        $this->typo3Dir = $typo3Dir;
-    }
-
-    public function setFilesDir(string $filesDir): void
-    {
-        $this->filesDir = $filesDir;
-    }
-
-    public function getWorkingDir(): string
-    {
-        return $this->workingDir;
     }
 
     public function setWorkingDir(string $workingDir): void

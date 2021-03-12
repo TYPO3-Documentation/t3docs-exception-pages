@@ -14,4 +14,17 @@ abstract class AbstractTestBase extends TestCase
         $reflectedMethod->setAccessible(true);
         return $reflectedMethod->invokeArgs($mockedInstance, $params);
     }
+
+    public function deleteDirectory($dir): void
+    {
+        if (is_dir($dir)) {
+            $files = glob($dir . '/*', GLOB_MARK);
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            rmdir($dir);
+        }
+    }
 }

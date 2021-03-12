@@ -8,21 +8,34 @@ use Typo3\ExceptionPages\ExceptionPage;
 
 class ExceptionPageTest extends AbstractTestBase
 {
+    protected static $workingDir;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$workingDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'tmp';
+    }
+
     /**
      * @test
      */
     public function replaceBothTemplateFilesIfOutdated(): void
     {
         $exceptionPage = new ExceptionPage('1166543253');
+        $exceptionPage->setWorkingDir(self::$workingDir);
         $exceptionPage->setTemplateLifetime(0);
 
-        $pageDefaultModificationTime = filemtime($exceptionPage->getTemplateDir() . '/pageDefault.html');
-        $pageErrorModificationTime = filemtime($exceptionPage->getTemplateDir() . '/pageError.html');
+        $pageDefaultPath = self::$workingDir . '/templates/pageDefault.html';
+        $pageErrorPath = self::$workingDir . '/templates/pageError.html';
+
+        $this->deleteDirectory(self::$workingDir . '/templates');
+
+        $this->assertFileNotExists($pageDefaultPath);
+        $this->assertFileNotExists($pageErrorPath);
 
         $this->callProtected($exceptionPage, 'refreshTemplatesIfOutdated');
 
-        $this->assertGreaterThan($pageDefaultModificationTime, filemtime($exceptionPage->getTemplateDir() . '/pageDefault.html'));
-        $this->assertGreaterThan($pageErrorModificationTime, filemtime($exceptionPage->getTemplateDir() . '/pageError.html'));
+        $this->assertFileExists($pageDefaultPath);
+        $this->assertFileExists($pageErrorPath);
     }
 
     /**
@@ -33,9 +46,10 @@ class ExceptionPageTest extends AbstractTestBase
     public function replaceBothTemplateFilesProperly(): void
     {
         $exceptionPage = new ExceptionPage('1166543253');
+        $exceptionPage->setWorkingDir(self::$workingDir);
 
-        $pageDefaultContent = file_get_contents($exceptionPage->getTemplateDir() . '/pageDefault.html');
-        $pageErrorContent = file_get_contents($exceptionPage->getTemplateDir() . '/pageError.html');
+        $pageDefaultContent = file_get_contents(self::$workingDir . '/templates/pageDefault.html');
+        $pageErrorContent = file_get_contents(self::$workingDir . '/templates/pageError.html');
 
         $this->assertStringContainsString('<h1>TYPO3 Exception [[[Exception]]]', $pageDefaultContent);
         $this->assertStringContainsString('href="?action=edit"', $pageDefaultContent);

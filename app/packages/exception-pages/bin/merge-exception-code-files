@@ -8,5 +8,5 @@ $config = include dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php';
 $typo3ReleasePattern = !empty($argv[1]) ? $argv[1] : '';
 $mergeFileName = !empty($argv[2]) ? $argv[2] : '';
 $exceptionCodes = new \Typo3\ExceptionPages\ExceptionCodes();
-$exceptionCodes->setWorkingDir($config['codes']['workingDir'] ?? $exceptionCodes->getWorkingDir());
+if (isset($config['workingDir'])) $exceptionCodes->setWorkingDir($config['workingDir']);
 $exceptionCodes->mergeFiles($typo3ReleasePattern, $mergeFileName);

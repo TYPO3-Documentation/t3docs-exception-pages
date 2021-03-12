@@ -11,5 +11,6 @@ $exceptionPage = new \Typo3\ExceptionPages\ExceptionPage($exception);
 $exceptionPage->setAction($action);
 $exceptionPage->setGitHubUser($config['gitHub']['user']);
 $exceptionPage->setGitHubToken($config['gitHub']['token']);
-$exceptionPage->setTemplateLifetime($config['template']['lifetime'] ?? $exceptionPage->getTemplateLifetime());
+if (isset($config['template']['lifetime'])) $exceptionPage->setTemplateLifetime($config['template']['lifetime']);
+if (isset($config['workingDir'])) $exceptionPage->setWorkingDir($config['workingDir']);
 $exceptionPage->run();
