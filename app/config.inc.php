@@ -1,8 +1,8 @@
 <?php
 return [
     'gitHub' => [
-        'user' => '#{USERNAME}#',
-        'token' => '#{TOKEN}#',
+        'user' => '',
+        'token' => '',
     ],
     'template' => [
         'lifetime' => 24 * 3600
