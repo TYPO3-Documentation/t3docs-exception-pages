@@ -1,11 +1,11 @@
 <?php
 return [
     'gitHub' => [
-        'user' => '',
-        'token' => '',
+        'user' => '#{USERNAME}#',
+        'token' => '#{TOKEN}#',
     ],
     'template' => [
         'lifetime' => 24 * 3600
     ],
-    'workingDir' => dirname(__FILE__) . '/packages/exception-pages/res'
+    'workingDir' => __DIR__ . '/packages/exception-pages/res'
 ];

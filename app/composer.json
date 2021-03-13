@@ -10,8 +10,12 @@
     }
   ],
   "require": {
-    "typo3/exception-pages": "@dev",
-    "php": "~7.2.24"
+    "typo3/exception-pages": "@dev"
+  },
+  "config": {
+    "platform": {
+      "php": "7.2.24"
+    }
   },
   "repositories": {
     "local": {
