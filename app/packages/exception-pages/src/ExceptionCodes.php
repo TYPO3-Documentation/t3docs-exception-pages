@@ -207,6 +207,9 @@ class ExceptionCodes
             if (is_file($this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $this->mergeFile)) {
                 $data = include $this->getExceptionCodesWorkingDir() . DIRECTORY_SEPARATOR . $this->mergeFile;
                 $this->exceptionCodes = $data['exceptions'];
+            } elseif (is_file($this->getExceptionCodesResourcesDir() . DIRECTORY_SEPARATOR . $this->mergeFile)) {
+                $data = include $this->getExceptionCodesResourcesDir() . DIRECTORY_SEPARATOR . $this->mergeFile;
+                $this->exceptionCodes = $data['exceptions'];
             }
         }
     }
