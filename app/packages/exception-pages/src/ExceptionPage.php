@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Typo3\ExceptionPages;
 
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -12,13 +11,6 @@ class ExceptionPage
 {
     protected $exceptionCode;
     protected $action;
-
-    protected $exceptionUrl;
-    protected $templateExceptionCode;
-    protected $templateLifetime;
-
-    protected $resourcesDir;
-    protected $workingDir;
 
     protected $gitHubUser;
     protected $gitHubToken;
@@ -28,17 +20,11 @@ class ExceptionPage
     protected $gitHubBranch;
 
     protected $exceptionCodes;
+    protected $exceptionTemplates;
 
     public function __construct(string $exceptionCode)
     {
         $this->exceptionCode = $exceptionCode;
-
-        $this->exceptionUrl = 'https://docs.typo3.org/typo3cms/exceptions/master/en-us/Exceptions/%s.html';
-        $this->templateExceptionCode = 1166546734;
-        $this->templateLifetime = 24 * 3600;
-
-        $this->resourcesDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
-        $this->workingDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'res';
 
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
@@ -46,6 +32,7 @@ class ExceptionPage
         $this->gitHubBranch = 'master';
 
         $this->exceptionCodes = new ExceptionCodes();
+        $this->exceptionTemplates = new ExceptionTemplates();
     }
 
     public function run(): void
@@ -78,8 +65,7 @@ class ExceptionPage
 
     protected function createPage(): void
     {
-        $rst = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.rst');
-        $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
+        $rst = $this->exceptionTemplates->renderDefaultPageRst($this->exceptionCode);
 
         try {
             $client = HttpClient::create();
@@ -126,167 +112,17 @@ class ExceptionPage
     {
         header('Content-Type: text/plain');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $rst = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.rst');
-        $rst = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $rst);
-        echo $rst;
+        echo $this->exceptionTemplates->renderDefaultPageRst($this->exceptionCode);
         exit;
     }
 
     protected function showDefaultPage(): void
     {
-        $this->refreshTemplatesIfOutdated();
+        $this->exceptionTemplates->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents($this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html');
-        $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
-        echo $page;
+        echo $this->exceptionTemplates->renderDefaultPage($this->exceptionCode);
         exit;
-    }
-
-    protected function refreshTemplatesIfOutdated(): void
-    {
-        $pageDefaultPath = $this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageDefault.html';
-        $pageErrorPath = $this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html';
-
-        if (!is_file($pageDefaultPath)) {
-            $this->createWorkingDirsIfNotExist();
-            copy($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'pageDefault.html', $pageDefaultPath);
-        }
-        if (!is_file($pageErrorPath)) {
-            $this->createWorkingDirsIfNotExist();
-            copy($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'pageError.html', $pageErrorPath);
-        }
-
-        $lastModificationTime = max(filemtime($pageDefaultPath), filemtime($pageErrorPath));
-        if ($lastModificationTime + $this->templateLifetime < time()) {
-            try {
-                $content = file_get_contents(sprintf($this->exceptionUrl, $this->templateExceptionCode));
-                file_put_contents($pageDefaultPath, $this->parseDefaultPage($content));
-                file_put_contents($pageErrorPath, $this->parseErrorPage($content));
-            } catch (\Exception $e) {
-                $this->logError('%s (%s)', $e->getMessage(), $e->getCode());
-            }
-        }
-    }
-
-    protected function createWorkingDirsIfNotExist(): void
-    {
-        $dirs = array_unique([$this->getTemplatesWorkingDir()]);
-
-        foreach ($dirs as $dir) {
-            if (!is_dir($dir)) {
-                if (@mkdir($dir, 0777, true) === false) {
-                    throw new \Exception(sprintf('Directory %s cannot be created.', $dir), 4002);
-                }
-            }
-        }
-    }
-
-    protected function parseDefaultPage(string $content): string
-    {
-        $crawler = new Crawler($this->parsePage($content));
-        $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
-            ->each(function(Crawler $crawler, int $index){
-                $node = $crawler->getNode(0);
-                if ($index === 0) {
-                    $node->setAttribute('href', '?action=edit');
-                } else {
-                    $node->setAttribute('href', '?action=source');
-                }
-            });
-        $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
-            ->each(function(Crawler $crawler){
-                // Keep headline + contribution note and replace the remainder
-                // -
-                // Index 0: Headline
-                // Index 1: Contribution note
-                // Index 2..n: Body
-                foreach ($crawler->children() as $index => $child) {
-                    if ($index >= 2) {
-                        $child->parentNode->removeChild($child);
-                    }
-                }
-                $node = $crawler->getNode(0);
-                $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
-            });
-
-        $body = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'default.html');
-        $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
-        $content = str_replace(['[[[Body]]]'], [$body], $content);
-        return $content;
-    }
-
-    protected function parseErrorPage(string $content): string
-    {
-        $crawler = new Crawler($this->parsePage($content));
-        $crawler->filterXPath('//div[@class="breadcrumb-additions"]')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
-            ->each(function(Crawler $crawler){
-                // Keep headline and replace the remainder by placeholder "[[[Body]]]"
-                // -
-                // Index 0: Headline
-                // Index 1: Contribution note
-                // Index 2..n: Body
-                foreach ($crawler->children() as $index => $child) {
-                    if ($index >= 1) {
-                        $child->parentNode->removeChild($child);
-                    }
-                }
-                $node = $crawler->getNode(0);
-                $node->appendChild($node->ownerDocument->createTextNode('[[[Body]]]'));
-            });
-
-        $body = file_get_contents($this->getTemplatesResourcesDir() . DIRECTORY_SEPARATOR . 'error.html');
-        $content = "<!DOCTYPE html>\n" . $crawler->outerHtml();
-        $content = str_replace(['[[[Body]]]'], [$body], $content);
-        return $content;
-    }
-
-    protected function parsePage(string $content): string
-    {
-        $crawler = new Crawler($content);
-        $crawler->filterXPath('//link[@rel="prev" or @rel="next"]')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
-            ->each(function(Crawler $crawler, int $index){
-                $node = $crawler->getNode(0);
-                if ($index === 0) {
-                    $node->setAttribute('href', '?action=edit');
-                } else {
-                    $node->setAttribute('href', '?action=source');
-                }
-            });
-        $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/a[@accesskey="p" or @accesskey="n"]')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/nav')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@class="footer-additional"]/p[contains(text(), "Last updated") or contains(text(), "Last rendered")]')
-            ->each(function(Crawler $crawler){
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            });
-
-        $content = $crawler->outerHtml();
-        $content = str_replace([$this->templateExceptionCode], ['[[[Exception]]]'], $content);
-        return $content;
     }
 
     protected function logError(string $message, ...$args): void
@@ -296,12 +132,10 @@ class ExceptionPage
 
     protected function showError(): void
     {
-        $this->refreshTemplatesIfOutdated();
+        $this->exceptionTemplates->refreshTemplatesIfOutdated();
         header('Content-Type: text/html');
         header('Cache-Control: no-cache, no-store, must-revalidate');
-        $page = file_get_contents($this->getTemplatesWorkingDir() . DIRECTORY_SEPARATOR . 'pageError.html');
-        $page = str_replace(['[[[Exception]]]'], [$this->exceptionCode], $page);
-        echo $page;
+        echo $this->exceptionTemplates->renderErrorPage($this->exceptionCode);
         exit;
     }
 
@@ -310,40 +144,15 @@ class ExceptionPage
         $this->action = $action;
     }
 
-    public function setExceptionUrl(string $exceptionUrl): void
-    {
-        $this->exceptionUrl = $exceptionUrl;
-    }
-
-    public function setTemplateExceptionCode(int $templateExceptionCode): void
-    {
-        $this->templateExceptionCode = $templateExceptionCode;
-    }
-
-    public function getTemplateLifetime(): int
-    {
-        return $this->templateLifetime;
-    }
-
     public function setTemplateLifetime(int $templateLifetime): void
     {
-        $this->templateLifetime = $templateLifetime;
+        $this->exceptionTemplates->setLifetime($templateLifetime);
     }
 
     public function setWorkingDir(string $workingDir): void
     {
-        $this->workingDir = $workingDir;
         $this->exceptionCodes->setWorkingDir($workingDir);
-    }
-
-    public function getTemplatesResourcesDir(): string
-    {
-        return $this->resourcesDir . DIRECTORY_SEPARATOR . 'templates';
-    }
-
-    public function getTemplatesWorkingDir(): string
-    {
-        return $this->workingDir . DIRECTORY_SEPARATOR . 'templates';
+        $this->exceptionTemplates->setWorkingDir($workingDir);
     }
 
     public function setGitHubUser(string $user): void

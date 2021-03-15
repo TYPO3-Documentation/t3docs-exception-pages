@@ -104,34 +104,17 @@ Refresh Exception Page templates
 
 The default exception page template is fetched from an existing exception page
 and exception code specific parts are replaced with placeholders. The lifetime
-of the template is one day, so changes in the general docs.typo3.org template
+of the template is 8 days, so changes in the general docs.typo3.org template
 are reflected in the default exception page in a timely manner.
-To update the template manually
+Update the templates manually by
 
-1. Temporarily decrease the template lifetime to 0 seconds by setting
+.. code-block:: bash
 
-   .. code-block:: php
+   # Linux
+   make refresh
 
-      ..
-      'template' => [
-         'lifetime' => 0
-      ]
-
-   in the configuration file ``app/config.php``.
-
-2. Refresh the template files ``app/packages/exception-pages/res/templates/pageDefault.html``
-   and ``app/packages/exception-pages/res/templates/pageError.html`` by
-   following the steps (1)-(3) of `Manual testing <manual-testing_>`_.
-3. Revert the template lifetime to one day by setting
-
-   .. code-block:: php
-
-      ..
-      'template' => [
-         'lifetime' => 24 * 3600
-      ]
-
-   in the configuration file.
+   # MacOS and Windows
+   docker-compose -f admin.yml run --rm refresh-templates
 
 .. _manual-testing:
 

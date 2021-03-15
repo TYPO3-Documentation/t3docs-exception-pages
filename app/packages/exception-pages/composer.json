@@ -26,6 +26,7 @@
   },
   "bin": [
     "bin/fetch-exception-code-files",
-    "bin/merge-exception-code-files"
+    "bin/merge-exception-code-files",
+    "bin/refresh-templates"
   ]
 }

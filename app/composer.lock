@@ -818,7 +818,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/exception-pages",
-                "reference": "065f49bf03fa88609c274f97797d9ccb4ed195e0"
+                "reference": "65101aedd7abbe25dbf8f16d5820a3b0a48a3f4a"
             },
             "require": {
                 "masterminds/html5": "^2.7",
@@ -827,7 +827,8 @@
             },
             "bin": [
                 "bin/fetch-exception-code-files",
-                "bin/merge-exception-code-files"
+                "bin/merge-exception-code-files",
+                "bin/refresh-templates"
             ],
             "type": "library",
             "autoload": {
@@ -2563,5 +2564,5 @@
     "platform-overrides": {
         "php": "7.2.24"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "1.1.0"
 }

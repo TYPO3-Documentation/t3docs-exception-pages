@@ -25,6 +25,10 @@ update: env
 	@echo "Update TYPO3 Exception Code files [branch: $(BRANCH)]"
 	@docker-compose -f admin.yml run --rm update-exception-code-files
 
+refresh: env
+	@echo "Refresh TYPO3 Exception Page templates [branch: $(BRANCH)]"
+	@docker-compose -f admin.yml run --rm refresh-templates
+
 tests: env
 	@echo "Test TYPO3 Exception Page creation [branch: $(BRANCH)]"
 	@docker-compose -f admin.yml run --rm run-tests
