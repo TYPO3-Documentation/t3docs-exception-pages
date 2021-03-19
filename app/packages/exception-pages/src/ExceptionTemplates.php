@@ -37,7 +37,7 @@ class ExceptionTemplates
         }
 
         $lastModificationTime = max(filemtime($this->getDefaultPagePath()), filemtime($this->getErrorPagePath()));
-        if ($lastModificationTime + $this->lifetime < time()) {
+        if ($this->lifetime === 0 || $lastModificationTime + $this->lifetime < time()) {
             try {
                 $content = file_get_contents(sprintf($this->exceptionUrl, $this->exceptionCode));
                 file_put_contents($this->getDefaultPagePath(), $this->parseDefaultPage($content));
