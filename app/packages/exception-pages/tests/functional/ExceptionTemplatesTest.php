@@ -49,11 +49,11 @@ class ExceptionTemplatesTest extends AbstractTestBase
         $pageErrorContent = $exceptionTemplates->renderErrorPage('1234567890');
 
         $this->assertStringContainsString('<h1>TYPO3 Exception 1234567890', $pageDefaultContent);
-        $this->assertStringContainsString('href="?action=edit"', $pageDefaultContent);
-        $this->assertStringContainsString('href="?action=source"', $pageDefaultContent);
+        $this->assertSame(1, substr_count($pageDefaultContent, 'href="?action=edit"'));
+        $this->assertSame(1, substr_count($pageDefaultContent, 'href="?action=source"'));
         $this->assertStringContainsString('<h1>TYPO3 Exception 1234567890', $pageErrorContent);
-        $this->assertStringNotContainsString('href="?action=edit"', $pageErrorContent);
-        $this->assertStringNotContainsString('href="?action=source"', $pageErrorContent);
+        $this->assertSame(0, substr_count($pageErrorContent, 'href="?action=edit"'));
+        $this->assertSame(0, substr_count($pageErrorContent, 'href="?action=source"'));
     }
 }
 

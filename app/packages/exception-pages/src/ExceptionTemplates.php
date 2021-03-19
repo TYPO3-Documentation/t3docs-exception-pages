@@ -67,9 +67,9 @@ class ExceptionTemplates
         $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
             ->each(function(Crawler $crawler, int $index){
                 $node = $crawler->getNode(0);
-                if ($index === 0) {
+                if (strpos($node->getAttribute('href'), 'TYPO3CMS-Exceptions/edit') !== false) {
                     $node->setAttribute('href', '?action=edit');
-                } else {
+                } elseif (strpos($node->getAttribute('href'), '/_sources/') !== false) {
                     $node->setAttribute('href', '?action=source');
                 }
             });
@@ -137,15 +137,6 @@ class ExceptionTemplates
             ->each(function(Crawler $crawler){
                 $node = $crawler->getNode(0);
                 $node->parentNode->removeChild($node);
-            });
-        $crawler->filterXPath('//div[@class="breadcrumb-additions"]/a')
-            ->each(function(Crawler $crawler, int $index){
-                $node = $crawler->getNode(0);
-                if ($index === 0) {
-                    $node->setAttribute('href', '?action=edit');
-                } else {
-                    $node->setAttribute('href', '?action=source');
-                }
             });
         $crawler->filterXPath('//div[@class="page-main-content"]/div[@class="rst-content"]/a[@accesskey="p" or @accesskey="n"]')
             ->each(function(Crawler $crawler){
