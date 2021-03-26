@@ -75,13 +75,13 @@ class ExceptionTemplates
             });
         $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
             ->each(function(Crawler $crawler){
-                // Keep headline + contribution note and replace the remainder
+                // Keep headline and replace the remainder
                 // -
                 // Index 0: Headline
                 // Index 1: Contribution note
                 // Index 2..n: Body
                 foreach ($crawler->children() as $index => $child) {
-                    if ($index >= 2) {
+                    if ($index >= 1) {
                         $child->parentNode->removeChild($child);
                     }
                 }
@@ -105,7 +105,7 @@ class ExceptionTemplates
             });
         $crawler->filterXPath('//div[@itemprop="articleBody"]/div')
             ->each(function(Crawler $crawler){
-                // Keep headline and replace the remainder by placeholder "[[[Body]]]"
+                // Keep headline and replace the remainder
                 // -
                 // Index 0: Headline
                 // Index 1: Contribution note
