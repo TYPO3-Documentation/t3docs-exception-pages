@@ -134,7 +134,10 @@ class ExceptionTemplates
                 $node = $crawler->getNode(0);
                 $node->parentNode->removeChild($node);
             });
-        $crawler->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')
+        $crawler->filterXPath(implode('|', [
+                '//div[@class="toc-collapse"]/div[@class="toc"]/p[span/text() = "PAGE CONTENTS"]/self::p',
+                '//div[@class="toc-collapse"]/div[@class="toc"]/p[span/text() = "PAGE CONTENTS"]/following-sibling::ul[1]',
+            ]))
             ->each(function(Crawler $crawler){
                 $node = $crawler->getNode(0);
                 $node->parentNode->removeChild($node);

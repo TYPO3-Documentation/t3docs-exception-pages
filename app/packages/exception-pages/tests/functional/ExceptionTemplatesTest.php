@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typo3\ExceptionPages\Tests\Functional;
 
+use Symfony\Component\DomCrawler\Crawler;
 use Typo3\ExceptionPages\ExceptionTemplates;
 
 class ExceptionTemplatesTest extends AbstractTestBase
@@ -48,12 +49,19 @@ class ExceptionTemplatesTest extends AbstractTestBase
         $pageDefaultContent = $exceptionTemplates->renderDefaultPage('1234567890');
         $pageErrorContent = $exceptionTemplates->renderErrorPage('1234567890');
 
-        $this->assertStringContainsString('<h1>TYPO3 Exception 1234567890', $pageDefaultContent);
-        $this->assertSame(1, substr_count($pageDefaultContent, 'href="?action=edit"'));
-        $this->assertSame(0, substr_count($pageDefaultContent, '/_sources/'));
-        $this->assertStringContainsString('<h1>TYPO3 Exception 1234567890', $pageErrorContent);
-        $this->assertSame(0, substr_count($pageErrorContent, 'href="?action=edit"'));
-        $this->assertSame(0, substr_count($pageErrorContent, '/_sources/'));
+        $crawlerDefault = new Crawler($pageDefaultContent);
+        $this->assertSame(1, $crawlerDefault->filterXPath('//h1[starts-with(., "TYPO3 Exception 1234567890")]')->count());
+        $this->assertSame(1, $crawlerDefault->filterXPath('//a[@href = "?action=edit"]')->count());
+        $this->assertSame(0, $crawlerDefault->filterXPath('//a[contains(@href, "/_sources/")]')->count());
+        $this->assertSame(1, $crawlerDefault->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')->count());
+        $this->assertSame(0, $crawlerDefault->filterXPath('//div[@class="toc-collapse"]//p[span/text() = "PAGE CONTENTS"]')->count());
+
+        $crawlerError = new Crawler($pageErrorContent);
+        $this->assertSame(1, $crawlerError->filterXPath('//h1[starts-with(., "TYPO3 Exception 1234567890")]')->count());
+        $this->assertSame(0, $crawlerError->filterXPath('//a[@href = "?action=edit"]')->count());
+        $this->assertSame(0, $crawlerDefault->filterXPath('//a[contains(@href, "/_sources/")]')->count());
+        $this->assertSame(1, $crawlerError->filterXPath('//div[@class="toc-collapse"]/div[@class="toc"]')->count());
+        $this->assertSame(0, $crawlerError->filterXPath('//div[@class="toc-collapse"]//p[span/text() = "PAGE CONTENTS"]')->count());
     }
 }
 
