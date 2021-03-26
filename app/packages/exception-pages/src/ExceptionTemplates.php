@@ -70,7 +70,8 @@ class ExceptionTemplates
                 if (strpos($node->getAttribute('href'), 'TYPO3CMS-Exceptions/edit') !== false) {
                     $node->setAttribute('href', '?action=edit');
                 } elseif (strpos($node->getAttribute('href'), '/_sources/') !== false) {
-                    $node->setAttribute('href', '?action=source');
+                    $node = $crawler->getNode(0);
+                    $node->parentNode->removeChild($node);
                 }
             });
         $crawler->filterXPath('//div[@itemprop="articleBody"]/div')

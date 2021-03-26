@@ -42,8 +42,6 @@ class ExceptionPage
             if ($this->action === 'edit') {
                 $this->createPage();
                 $this->redirectToEditPage();
-            } elseif ($this->action === 'source') {
-                $this->showSourceOfDefaultPage();
             } else {
                 $this->showDefaultPage();
             }
@@ -105,14 +103,6 @@ class ExceptionPage
             $this->gitHubBranch,
             sprintf($this->gitHubExceptionPath, $this->exceptionCode)
         )));
-        exit;
-    }
-
-    protected function showSourceOfDefaultPage(): void
-    {
-        header('Content-Type: text/plain');
-        header('Cache-Control: no-cache, no-store, must-revalidate');
-        echo $this->exceptionTemplates->renderDefaultPageRst($this->exceptionCode);
         exit;
     }
 
