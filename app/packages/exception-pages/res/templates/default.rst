@@ -7,40 +7,18 @@ TYPO3 Exception [[[Exception]]]
 .. include:: /If-you-encounter-this-exception.rst.txt
 
 
-Title of your report
-====================
+..
+   [TYPO3 version] - [Date of solution]
+   ====================================
 
+   Situation
+   ---------
 
-System environment and versions
--------------------------------
+   Describe everything to understand the situation: Systems, environment, versions.
+   What happened?
 
-((Describe everything to understand the situation: systems, environment,
-versions, ...))
+   Solution
+   --------
 
-
-What happened?
---------------
-
-((...))
-
-
-Solutions
----------
-
-1. What did help?
-
-2. What did not help?
-
-3. ...
-
-
-See also, references, resources
--------------------------------
-
-((...))
-
-
-What else to consider?
-----------------------
-
-((...))
+   1. Did you find a solution?
+   2. Explain what you did ..
