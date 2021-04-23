@@ -1,0 +1,71 @@
+name: Exception Codes and Templates
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 16 * * 2'
+
+env:
+  MERGE_CODES_COMMAND: ${{ secrets.TARGET_PATH }}/vendor/bin/merge-exception-code-files
+  REFRESH_TEMPLATES_COMMAND: ${{ secrets.TARGET_PATH }}/vendor/bin/refresh-templates
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Core Master
+        uses: actions/checkout@v2
+        with:
+          repository: 'TYPO3/TYPO3.CMS'
+          fetch-depth: 0
+          path: core
+
+      - name: Generate Exception Codes
+        run: |
+          mkdir exceptions
+          cd core
+          git fetch --tags
+          tag=$(git describe --tags --abbrev=0)
+          git checkout $tag
+          ./Build/Scripts/duplicateExceptionCodeCheck.sh -p > exceptions-$tag.json
+          mv exceptions-$tag.json ../exceptions/.
+
+          git checkout 10.4
+          tag=$(git describe --tags --abbrev=0)
+          git checkout $tag
+          ./Build/Scripts/duplicateExceptionCodeCheck.sh -p > exceptions-$tag.json
+          mv exceptions-$tag.json ../exceptions/.
+
+          git checkout 9.5
+          tag=$(git describe --tags --abbrev=0)
+          git checkout $tag
+          ./Build/Scripts/duplicateExceptionCodeCheck.sh -p > exceptions-$tag.json
+          mv exceptions-$tag.json ../exceptions/.
+
+      - name: SCP files to production system
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: "exceptions/*"
+          rm: false
+          tar_tmp_path: ${{ secrets.TMP_TARGET_PATH }}
+          target: ${{ secrets.APP_WORKING_DIR }}
+
+      - name: Run merge script of Exception Codes
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: ${{ env.MERGE_CODES_COMMAND }}
+
+      - name: Run refresh script of Exception Templates
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: ${{ env.REFRESH_TEMPLATES_COMMAND }}
