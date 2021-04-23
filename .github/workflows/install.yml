@@ -1,0 +1,65 @@
+name: Install
+
+on:
+  push:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+env:
+  MERGE_CODES_COMMAND: ${{ secrets.TARGET_PATH }}/vendor/bin/merge-exception-code-files
+  REFRESH_TEMPLATES_COMMAND: ${{ secrets.TARGET_PATH }}/vendor/bin/refresh-templates
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: cd app/ && composer install --prefer-dist --no-progress --no-suggest --no-dev
+
+      - name: Find and Replace User Name and Token
+        run: |
+          sed -i "s|'user' => [^,$]*\(,\?\)|'user' => '${{ secrets.EXCEPTIONS_USER }}'\1|" app/config.inc.php
+          sed -i "s|'token' => [^,$]*\(,\?\)|'token' => '${{ secrets.EXCEPTIONS_TOKEN }}'\1|" app/config.inc.php
+          sed -i "s|'workingDir' => [^,$]*\(,\?\)|'workingDir' => '${{ secrets.APP_WORKING_DIR }}'\1|" app/config.inc.php
+          cp app/config.inc.php app/config.php
+
+      - name: SCP files to production system
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: "app/*"
+          rm: true
+          strip_components: 2
+          tar_tmp_path: ${{ secrets.TMP_TARGET_PATH }}
+          target: ${{ secrets.TARGET_PATH }}
+
+      - name: Run merge script of Exception Codes
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: ${{ env.MERGE_CODES_COMMAND }}
+
+      - name: Run refresh script of Exception Templates
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_DOCS_HOST }}
+          username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: ${{ env.REFRESH_TEMPLATES_COMMAND }}
