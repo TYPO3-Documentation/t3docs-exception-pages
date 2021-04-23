@@ -1,0 +1,9 @@
+/.idea
+/.env
+/app/vendor/
+/app/config.php
+/html/exceptions/
+/app/packages/exception-pages/res/typo3/
+/app/packages/exception-pages/tests/tmp/
+
+!.gitkeep
