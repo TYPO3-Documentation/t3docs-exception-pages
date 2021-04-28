@@ -43,8 +43,8 @@ jobs:
           username: ${{ secrets.DEPLOY_DOCS_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           source: "app/*"
-          rm: true
-          strip_components: 2
+          rm: false
+          strip_components: 1
           tar_tmp_path: ${{ secrets.TMP_TARGET_PATH }}
           target: ${{ secrets.TARGET_PATH }}
 
