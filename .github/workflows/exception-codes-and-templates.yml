@@ -17,7 +17,7 @@ jobs:
       - name: Checkout Core Master
         uses: actions/checkout@v2
         with:
-          repository: 'TYPO3/TYPO3.CMS'
+          repository: 'typo3/typo3'
           fetch-depth: 0
           path: core
 
