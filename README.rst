@@ -97,7 +97,7 @@ Fetch Exception Codes
 
 Repeat these steps always when a new TYPO3 version has been released.
 
-.. _refresh-exception-page-template:
+.. _refresh-exception-page-templates:
 
 Refresh Exception Page templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,7 +200,7 @@ Deployment
    *  fetched, merged and committed the latest exception codes as written in
       `Fetch Exception Codes <fetch-exception-codes_>`_
    *  fetched, merged and committed the latest page templates as written
-      in `Refresh Exception Page template <refresh-exception-page-template_>`_
+      in `Refresh Exception Page template <refresh-exception-page-templates_>`_
 
 Uninstallation
 --------------
