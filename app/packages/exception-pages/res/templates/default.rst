@@ -8,8 +8,8 @@ TYPO3 Exception [[[Exception]]]
 
 
 ..
-   [TYPO3 version] - [Date of solution]
-   ====================================
+   TYPO3 [version] - [date of report]
+   ==================================
 
    Situation
    ---------
