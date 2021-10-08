@@ -1,4 +1,4 @@
-.. include:: /Includes.rst.txt
+ .. include:: /Includes.rst.txt
 
 ==========================
 TYPO3 Exception [[[Exception]]]
@@ -8,17 +8,24 @@ TYPO3 Exception [[[Exception]]]
 
 
 ..
-   [TYPO3 version] - [Date of solution]
-   ====================================
+   TYPO3 [version] - [date of report]
+   ==================================
 
-   Situation
+   Installation Overview
+   ---------------------
+
+   Provide as much information about your installation of TYPO3
+   including its version number and any other information that 
+   you think will be relevant to other users who encounter the same issue.
+   
+   The Issue
    ---------
-
-   Describe everything to understand the situation: Systems, environment, versions.
-   What happened?
+   
+   Detail each of the steps or changes that took place leading up to the
+   issue occurring.
 
    Solution
    --------
 
-   1. Did you find a solution?
-   2. Explain what you did ..
+   Did you resolve the issue? List the steps or changes made that resolved the 
+   issue.
