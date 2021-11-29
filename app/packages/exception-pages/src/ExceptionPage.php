@@ -65,31 +65,30 @@ class ExceptionPage
     {
         $rst = $this->exceptionTemplates->renderDefaultPageRst($this->exceptionCode);
 
-        try {
-            $client = HttpClient::create();
-            $client->request('PUT',
-                sprintf(
-                    'https://api.github.com/repos/%s/%s/contents/%s',
-                    $this->gitHubOwner,
-                    $this->gitHubRepository,
-                    sprintf($this->gitHubExceptionPath, $this->exceptionCode)
-                ),
-                ['headers' => [
-                    'accept' => 'application/vnd.github.v3+json',
-                ], 'auth_basic' => [
-                    $this->gitHubUser, $this->gitHubToken
-                ], 'json' => [
-                    'message' => sprintf('[TASK] Create page for exception %s', $this->exceptionCode),
-                    'content' => base64_encode($rst),
-                    'branch' => $this->gitHubBranch
-                ]]
-            );
-        } catch (ClientException $e) {
+        $client = HttpClient::create();
+        $response = $client->request('PUT',
+            sprintf(
+                'https://api.github.com/repos/%s/%s/contents/%s',
+                $this->gitHubOwner,
+                $this->gitHubRepository,
+                sprintf($this->gitHubExceptionPath, $this->exceptionCode)
+            ),
+            ['headers' => [
+                'accept' => 'application/vnd.github.v3+json',
+            ], 'auth_basic' => [
+                $this->gitHubUser, $this->gitHubToken
+            ], 'json' => [
+                'message' => sprintf('[TASK] Create page for exception %s', $this->exceptionCode),
+                'content' => base64_encode($rst),
+                'branch' => $this->gitHubBranch
+            ]]
+        );
+        if ($response->getStatusCode() >= 300) {
             // GitHub API error #422:
             // Exception page reST file already exists but is not yet converted and deployed as HTML
             // which means the user can continue to edit the page on GitHub.
-            if ($e->getCode() !== 422) {
-                throw $e;
+            if ($response->getStatusCode() !== 422) {
+                throw new GitHubException($response);
             }
         }
     }
