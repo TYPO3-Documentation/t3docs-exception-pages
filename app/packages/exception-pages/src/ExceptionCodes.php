@@ -24,7 +24,7 @@ class ExceptionCodes
     public function fetchFiles(string $typo3ReleasePattern = '', bool $force = false): void
     {
         if (!is_dir($this->getTypo3Dir())) {
-            exec(sprintf('git clone git://git.typo3.org/Packages/TYPO3.CMS.git %s', $this->getTypo3Dir()));
+            exec(sprintf('git clone https://github.com/TYPO3/typo3.git %s', $this->getTypo3Dir()));
         }
 
         chdir($this->getTypo3Dir());
