@@ -17,7 +17,7 @@ class ExceptionTemplates
 
     public function __construct()
     {
-        $this->exceptionUrl = 'https://docs.typo3.org/typo3cms/exceptions/master/en-us/Exceptions/%s.html';
+        $this->exceptionUrl = 'https://docs.typo3.org/typo3cms/exceptions/main/en-us/Exceptions/%s.html';
         $this->exceptionCode = 1166546734;
         $this->lifetime = 8 * 24 * 3600;
 

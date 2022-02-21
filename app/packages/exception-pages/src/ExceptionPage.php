@@ -29,7 +29,7 @@ class ExceptionPage
         $this->gitHubOwner = 'TYPO3-Documentation';
         $this->gitHubRepository = 'TYPO3CMS-Exceptions';
         $this->gitHubExceptionPath = 'Documentation/Exceptions/%s.rst';
-        $this->gitHubBranch = 'master';
+        $this->gitHubBranch = 'main';
 
         $this->exceptionCodes = new ExceptionCodes();
         $this->exceptionTemplates = new ExceptionTemplates();

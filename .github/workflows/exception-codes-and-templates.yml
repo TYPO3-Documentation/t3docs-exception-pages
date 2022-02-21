@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Core Master
+      - name: Checkout Core Main
         uses: actions/checkout@v2
         with:
           repository: 'typo3/typo3'

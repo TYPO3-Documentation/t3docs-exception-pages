@@ -2,7 +2,7 @@ TYPO3 Exception Page Creation
 =============================
 
 Besides editing existing
-`TYPO3 Exception Pages <https://docs.typo3.org/typo3cms/exceptions/master/en-us/Index.html>`_
+`TYPO3 Exception Pages <https://docs.typo3.org/typo3cms/exceptions/main/en-us/Index.html>`_
 on docs.typo3.org, the user should also be able to create a new exception page –
 without being distracted from the usual workflow.
 
@@ -194,7 +194,7 @@ Deployment
    *  the PHP application in folder `app <app>`_
    *  the Nginx configuration in file `default.conf <nginx/files/etc/nginx/conf.d/default.conf>`_
 
-2. Each push to the remote branch ``master`` triggers a deployment to the production
+2. Each push to the remote branch ``main`` triggers a deployment to the production
    server. Thus make sure that you
 
    *  fetched, merged and committed the latest exception codes as written in

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##################################################################################
-# This is a copy of https://github.com/typo3/typo3/blob/master/Build/Scripts/duplicateExceptionCodeCheck.sh
+# This is a copy of https://github.com/typo3/typo3/blob/main/Build/Scripts/duplicateExceptionCodeCheck.sh
 # to support the scanning of TYPO3 exception codes even for older TYPO3 releases.
 ##################################################################################
 

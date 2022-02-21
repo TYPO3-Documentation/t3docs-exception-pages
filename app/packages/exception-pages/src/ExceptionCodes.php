@@ -29,7 +29,7 @@ class ExceptionCodes
 
         chdir($this->getTypo3Dir());
 
-        exec('git checkout master');
+        exec('git checkout main');
         exec('git pull');
         exec('git tag --list', $tags);
 

@@ -2,7 +2,7 @@ name: App Update
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
   workflow_dispatch:
 
