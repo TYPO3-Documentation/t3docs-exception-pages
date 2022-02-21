@@ -29,8 +29,8 @@ class ExceptionCodes
 
         chdir($this->getTypo3Dir());
 
-        exec('git checkout main');
-        exec('git pull');
+        exec('git fetch --prune');
+        exec('git reset --hard origin/main');
         exec('git tag --list', $tags);
 
         $durationTotal = 0;
